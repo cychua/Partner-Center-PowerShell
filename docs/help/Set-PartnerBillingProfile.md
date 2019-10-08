@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerBillingProfile.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Set-PartnerBillingProfile
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerBillingProfile.md
 schema: 2.0.0
 ---
 
@@ -12,11 +14,11 @@ Updates the partner's billing profile.
 
 ## SYNTAX
 
-```
+```powershell
 Set-PartnerBillingProfile [-AddressLine1 <String>] [-AddressLine2 <String>] [-City <String>]
- [-EmailAddress <String>] [-FirstName <String>] [-LastName <String>] [-PhoneNumber <String>]
- [-PostalCode <String>] [-PurchaseOrderNumber <String>] [-Region <String>] [-State <String>] [-TaxId <String>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-DisableValidation] [-EmailAddress <String>] [-FirstName <String>] [-LastName <String>]
+ [-PhoneNumber <String>] [-PostalCode <String>] [-PurchaseOrderNumber <String>] [-Region <String>]
+ [-State <String>] [-TaxId <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -68,6 +70,21 @@ The city portion of the address.
 
 ```yaml
 Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisableValidation
+A flag that indicates whether the additional client side validation should be disabled.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
@@ -245,7 +262,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -258,5 +275,3 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
-
-Partner Center SDK reference for updating the partner billing profile: <https://docs.microsoft.com/en-us/partner-center/develop/update-partner-billing-profile>

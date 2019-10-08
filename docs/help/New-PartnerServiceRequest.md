@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/New-PartnerServiceRequest.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/New-PartnerServiceRequest
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/New-PartnerServiceRequest.md
 schema: 2.0.0
 ---
 
@@ -12,7 +14,7 @@ Creates a service request at the partner level.
 
 ## SYNTAX
 
-```
+```powershell
 New-PartnerServiceRequest [-AgentLocale <String>] -Description <String> -Severity <ServiceRequestSeverity>
  -SupportTopicId <String> -Title <String> [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
@@ -24,8 +26,8 @@ Creates a service request at the partner level.
 
 ### Example 1
 ```powershell
-PS C:\> Get-PartnerServiceRequestTopic 
-PS C:\> New-PartnerServiceRquest -Description 'Please ignore this SR' -Severity -SupportTopicId '32569836' -Title 'Please ignore this SR'
+PS C:\> Get-PartnerServiceRequestTopic
+PS C:\> New-PartnerServiceRequest -Description 'Please ignore this SR' -Severity Critical -SupportTopicId '32569836' -Title 'Please ignore this SR'
 ```
 
 Creates a service request at the partner level.
@@ -48,7 +50,7 @@ Accept wildcard characters: False
 ```
 
 ### -Description
-The descripion for the service reuqest.
+The description for the service request.
 
 ```yaml
 Type: String
@@ -63,7 +65,7 @@ Accept wildcard characters: False
 ```
 
 ### -Severity
-The severity for the service reuqest.
+The severity for the service request.
 
 ```yaml
 Type: ServiceRequestSeverity
@@ -79,7 +81,7 @@ Accept wildcard characters: False
 ```
 
 ### -SupportTopicId
-The support topic identifier for the service reuqest.
+The support topic identifier for the service request.
 
 ```yaml
 Type: String
@@ -94,7 +96,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The title for the service reuqest.
+The title for the service request.
 
 ```yaml
 Type: String
@@ -140,7 +142,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

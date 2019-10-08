@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerCustomerEntitlements.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -10,7 +7,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
+    using Extensions;
     using Models.Entitlements;
     using PartnerCenter.Models.Entitlements;
 
@@ -23,14 +20,20 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// <summary>
         /// Gets or sets the required customer identifier.
         /// </summary>
-        [Parameter(Mandatory = true, HelpMessage = "The identifier for the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [Parameter(HelpMessage = "The identifier for the customer.", Mandatory = true)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag to indicate if the expiry date is required to be returned along with the entitlement (if applicable).
+        /// </summary>
+        [Parameter(HelpMessage = "A flag to indicate if the expiry date is required to be returned along with the entitlement (if applicable).", Mandatory = false)]
+        public SwitchParameter ShowExpiry { get; set; }
 
         /// <summary>
         /// Gets or sets the optional order identifier.
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "The identifier for the order.")]
+        [Parameter(HelpMessage = "The identifier for the order.", Mandatory = false)]
         public string OrderId { get; set; }
 
         /// <summary>
@@ -62,16 +65,9 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 
             customerId.AssertNotEmpty(nameof(customerId));
 
-            try
-            {
-                entitlements = Partner.Customers[customerId].Entitlements.Get().Items.Where(e => e.ReferenceOrder.Id == orderId);
+            entitlements = Partner.Customers[customerId].Entitlements.GetAsync(ShowExpiry.ToBool()).GetAwaiter().GetResult().Items.Where(e => e.ReferenceOrder.Id == orderId);
 
-                WriteObject(entitlements.Select(e => new PSEntitlement(e)), true);
-            }
-            finally
-            {
-                entitlements = null;
-            }
+            WriteObject(entitlements.Select(e => new PSEntitlement(e)), true);
         }
 
         /// <summary>
@@ -87,16 +83,9 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 
             customerId.AssertNotEmpty(nameof(customerId));
 
-            try
-            {
-                entitlements = Partner.Customers[customerId].Entitlements.Get().Items;
+            entitlements = Partner.Customers[customerId].Entitlements.GetAsync(ShowExpiry.ToBool()).GetAwaiter().GetResult().Items;
 
-                WriteObject(entitlements.Select(e => new PSEntitlement(e)), true);
-            }
-            finally
-            {
-                entitlements = null;
-            }
+            WriteObject(entitlements.Select(e => new PSEntitlement(e)), true);
         }
     }
 }

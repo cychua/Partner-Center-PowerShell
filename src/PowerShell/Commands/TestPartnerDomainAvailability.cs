@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="TestPartnerDomainAvailability.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -27,7 +24,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            WriteObject(!Partner.Domains.ByDomain(Domain).Exists());
+            WriteObject(!Partner.Domains.ByDomain(Domain).ExistsAsync().GetAwaiter().GetResult());
         }
     }
 }

@@ -1,32 +1,34 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerMpnProfile.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Get-PartnerMpnProfile
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerMpnProfile.md
 schema: 2.0.0
 ---
 
 # Get-PartnerMpnProfile
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Gets the partner MPN from Partner Center.
 
 ## SYNTAX
 
-```
+```powershell
 Get-PartnerMpnProfile [-MpnId <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Gets the partner MPN from Partner Center.
 
 ## EXAMPLES
 
 ### Example 1
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> Get-PartnerMpnProfile
 ```
 
-{{ Add example description here }}
+Gets the partner MPN from Partner Center.
 
 ## PARAMETERS
 
@@ -46,7 +48,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

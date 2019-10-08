@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerAuditRecord.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Get-PartnerAuditRecord
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerAuditRecord.md
 schema: 2.0.0
 ---
 
@@ -12,7 +14,7 @@ Gets audit records from Partner Center.
 
 ## SYNTAX
 
-```
+```powershell
 Get-PartnerAuditRecord [-EndDate <DateTime>] [-StartDate <DateTime>] [<CommonParameters>]
 ```
 
@@ -61,7 +63,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

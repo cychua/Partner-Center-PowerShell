@@ -1,16 +1,10 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="NewPartnerServiceRequest.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
-    using System;
-    using System.Globalization;
-    using System.Linq;
     using System.Management.Automation;
-    using Authentication;
+    using Models.Authentication;
     using Models.ServiceRequests;
     using PartnerCenter.Models.ServiceRequests;
     using Properties;
@@ -27,28 +21,28 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// <summary>
         /// Gets or sets the description for the service request.
         /// </summary>
-        [Parameter(HelpMessage = "The descripion for the service reuqest.", Mandatory = true)]
+        [Parameter(HelpMessage = "The description for the service request.", Mandatory = true)]
         [ValidateNotNullOrEmpty]
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the severity for the service reuqest.
+        /// Gets or sets the severity for the service request.
         /// </summary>
-        [Parameter(HelpMessage = "The severity for the service reuqest.", Mandatory = true)]
+        [Parameter(HelpMessage = "The severity for the service request.", Mandatory = true)]
         [ValidateSet(nameof(ServiceRequestSeverity.Critical), nameof(ServiceRequestSeverity.Minimal), nameof(ServiceRequestSeverity.Moderate))]
         public ServiceRequestSeverity Severity { get; set; }
 
         /// <summary>
         /// Gets or sets the support topic identifier for the service request.
         /// </summary>
-        [Parameter(HelpMessage = "The support topic identifier for the service reuqest.", Mandatory = true)]
+        [Parameter(HelpMessage = "The support topic identifier for the service request.", Mandatory = true)]
         [ValidateNotNullOrEmpty]
         public string SupportTopicId { get; set; }
 
         /// <summary>
         /// Gets or sets the title for the service request.
         /// </summary>
-        [Parameter(HelpMessage = "The title for the service reuqest.", Mandatory = true)]
+        [Parameter(HelpMessage = "The title for the service request.", Mandatory = true)]
         [ValidateNotNullOrEmpty]
         public string Title { get; set; }
 
@@ -60,52 +54,21 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             ServiceRequest request;
             string agentLocale;
 
-            try
+            if (ShouldProcess(Resources.NewPartnerServiceRequestWhatIf))
             {
-                if (ShouldProcess(Resources.NewPartnerServiceRequestWhatIf))
+                agentLocale = string.IsNullOrEmpty(AgentLocale) ? PartnerSession.Instance.Context.Locale : AgentLocale;
+
+                request = new ServiceRequest
                 {
-                    agentLocale = string.IsNullOrEmpty(AgentLocale) ? PartnerProfile.Instance.Context.Locale : AgentLocale;
+                    Description = Description,
+                    Severity = Severity,
+                    SupportTopicId = SupportTopicId,
+                    Title = Title
+                };
 
-                    if (!IsValidCulture(agentLocale))
-                    {
-                        throw new PSInvalidOperationException(string.Format(CultureInfo.CurrentCulture, "{0} is an invalid culture.", agentLocale));
-                    }
+                request = Partner.ServiceRequests.CreateAsync(request, agentLocale).GetAwaiter().GetResult();
 
-                    request = new ServiceRequest
-                    {
-                        Description = Description,
-                        Severity = Severity,
-                        SupportTopicId = SupportTopicId,
-                        Title = Title
-                    };
-
-                    request = Partner.ServiceRequests.Create(request, agentLocale);
-
-                    WriteObject(new PSServiceRequest(request));
-                }
-            }
-            finally
-            {
-                request = null;
-            }
-        }
-
-        private static bool IsValidCulture(string locale)
-        {
-            CultureInfo[] cultures;
-            CultureInfo culture; 
-
-            try
-            {
-                cultures = CultureInfo.GetCultures(CultureTypes.UserCustomCulture);
-                culture = cultures.Where(x => x.Name.Equals(locale, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-
-                return culture != null; 
-            }
-            finally
-            {
-                culture = null;
-                cultures = null;
+                WriteObject(new PSServiceRequest(request));
             }
         }
     }

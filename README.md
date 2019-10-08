@@ -1,88 +1,89 @@
-# Microsoft Partner Center PowerShell
+# Partner Center PowerShell
 
-![Build status](https://dev.azure.com/partnercenter/powershell/_apis/build/status/PowerShell%20-%20master%20-%20CI)
+![Build status](https://dev.azure.com/partnercenter/powershell/_apis/build/status/partner-center-powershell-CI) ![Deployment status](https://vsrm.dev.azure.com/partnercenter/_apis/public/Release/badge/330fa980-0fb5-4550-8242-f162a4c6d7c7/6/9)
 
-This repository contains a set of PowerShell cmdlets for developers and administrators to manage Cloud Solution Provider program resources.
+[![PartnerCenter](https://img.shields.io/powershellgallery/v/PartnerCenter.svg?style=flat-square&label=PartnerCenter)](https://www.powershellgallery.com/packages/PartnerCenter/) [![GitHub issues](https://img.shields.io/github/issues/Microsoft/Partner-Center-PowerShell.svg)](https://github.com/Microsoft/Partner-Center-PowerShell/issues/) [![GitHub pull-requests](https://img.shields.io/github/issues-pr/Microsoft/Partner-Center-PowerShell.svg)](https://gitHub.com/Microsoft/Partner-Center-PowerShell/pull/)
 
-## Installation
+Partner Center PowerShell is commonly used by partners to manage their Partner Center resources. It is an open source project maintained by the partner community. Since this module is maintained by the partner community, it is not officially supported by Microsoft. You can [get help from the community](https://stackoverflow.com/questions/tagged/partner+center) or open an [issue](https://github.com/microsoft/partner-center-powershell/issues) on GitHub.
 
-### PowerShell Gallery
+## Requirements
 
-Run the following command in an elevated PowerShell session to install the Partner Center module:
+Partner Center PowerShell works with PowerShell 5.1 or higher on Windows, or PowerShell Core 6.x and later on
+all platforms. If you aren't sure if you have PowerShell, or are on macOS or Linux,
+[install the latest version of PowerShell Core](https://docs.microsoft.com/powershell/scripting/install/installing-powershell#powershell-core).
 
-```powershell
-Install-Module -Name PartnerCenter
-```
-
-If you have an earlier version of the Partner Center PowerShell modules installed from the PowerShell Gallery and would like to update to the latest version, run the following commands from an elevated PowerShell session.
-
-**Note:** `Update-Module` installs the new version, however, it does not remove the old version.
+To check your PowerShell version, run the command:
 
 ```powershell
-# Install the latest version of the Partner Center PowerShell module
-Update-Module -Name PartnerCenter
+$PSVersionTable.PSVersion
 ```
 
-## Usage
+To run Partner Center PowerShell in PowerShell 5.1 on Windows:
 
-### Configure Azure AD Native App
+1. Update to [Windows PowerShell 5.1](https://docs.microsoft.com/powershell/scripting/install/installing-windows-powershell#upgrading-existing-windows-powershell) if needed. If you're on Windows 10, you already
+  have PowerShell 5.1 installed.
+2. Install [.NET Framework 4.7.2 or later](https://docs.microsoft.com/dotnet/framework/install).
 
-**Important:** This module only supports the app + user authentication.
+There are no additional requirements for Partner Center PowerShell when using PowerShell Core.
 
-You must create and configure an Azure Active Directory (AD) application. To do this, complete the following steps:
+## Install the Partner Center PowerShell module
 
-1. Sign in to the [Partner Dashboard](https://partner.microsoft.com) using credentials that have *Admin Agent* and *Global Admin* privileges
-2. Click on _Dashboard_  at the top of the page, then click on the cog icon in the upper right, and then click the _Partner settings_.
-3. Add a new native application if one does not exist already.
-4. Sign in to the [Azure management portal](https://portal.azure.com) using the same credentials from step 1.
-5. Click on the _Azure Active Directory_ icon in the toolbar.
-6. Click _App registrations_ -> Select _All apps_ from the drop down -> Click on the application created in step 3.
-7. Click _Settings_ and then click _Redirect URIs_
-8. Add **urn:ietf:wg:oauth:2.0:oob** as one of the available Redirect URIs. Be sure to click the _Save_ button to ensure the changes are saved.  
-
-### Log in to Partner Center
-
-To connect to Partner Center, use the [`Connect-PartnerCenter`](docs/help/Connect-PartnerCenter.md) cmdlet.
+The recommended install method is to only install for the active user:
 
 ```powershell
-# Interactive login - a dialog box will appear for you to provide your Partner Center credentials
-Connect-PartnerCenter -ApplicationId '<Native-AAD-AppId-for-PartnerCenter>'
-
-# Non-interactive login
-$PSCredential = Get-Credential
-Connect-PartnerCenter -ApplicationId '<Native-AAD-AppId-for-PartnerCenter>' -Credential $PSCredential
+Install-Module -Name PartnerCenter -AllowClobber -Scope CurrentUser
 ```
 
-To log into a specific cloud (_ChinaCloud_, _GlobalCloud_, _GermanCloud_, _USGovernment_), use the `Environment` parameter:
+If you want to install for all users on a system, this requires administrator privileges. From an elevated PowerShell session either
+run as administrator or with the `sudo` command on macOS or Linux:
 
 ```powershell
-# Log into a specific cloud - in this case, the German cloud
-Connect-PartnerCenter -Environment GermanCloud
+Install-Module -Name PartnerCenter -AllowClobber -Scope AllUsers
 ```
+
+By default, the PowerShell gallery isn't configured as a trusted repository for PowerShellGet. The first time you use the PSGallery you see the following prompt:
+
+```output
+Untrusted repository
+
+You are installing the modules from an untrusted repository. If you trust this repository, change
+its InstallationPolicy value by running the Set-PSRepository cmdlet.
+
+Are you sure you want to install the modules from 'PSGallery'?
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"):
+```
+
+Answer `Yes` or `Yes to All` to continue with the installation.
 
 ### Discovering cmdlets
 
 Use the `Get-Command` cmdlet to discover cmdlets within a specific module, or cmdlets that follow a specific search pattern:
 
 ```powershell
-# View all cmdlets in the Partner Center module
+# List all cmdlets in the PartnerCenter module
 Get-Command -Module PartnerCenter
 
-# View all cmdlets that contain "Customer" in the PartnerCenter module
-Get-Command -Module PartnerCenter -Name "*Customer*"
+# List all cmdlets that contain Azure
+Get-Command -Name '*Azure*'
+
+# List all cmdlets that contain Azure in the PartnerCenter module
+Get-Command -Module PartnerCenter -Name '*Azure*'
 ```
 
 ### Cmdlet help and examples
 
-To view the cmdlet help content, use the `Get-Help` cmdlet:
+To view the help content for a cmdlet, use the `Get-Help` cmdlet:
 
 ```powershell
-# View the basic help content for Get-PartnerCustomer
-Get-Help -Name Get-PartnerCustomer
+# View the basic help content for Get-PartnerCustomerSubscription
+Get-Help -Name Get-PartnerCustomerSubscription
 
-# View the examples for Get-PartnerCustomer
-Get-Help -Name Get-PartnerCustomer -Examples
+# View the examples for Get-PartnerCustomerSubscription
+Get-Help -Name Get-PartnerCustomerSubscription -Examples
 
-# View the full help content for Get-PartnerCustomer
-Get-Help -Name Get-PartnerCustomer -Full
+# View the full help content for Get-PartnerCustomerSubscription
+Get-Help -Name Get-PartnerCustomerSubscription -Full
+
+# View the help content for Get-PartnerCustomerSubscription on https://docs.microsoft.com
+Get-Help -Name Get-PartnerCustomerSubscription -Online
 ```

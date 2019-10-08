@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Remove-PartnerCustomerUser.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Remove-PartnerCustomerUser
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Remove-PartnerCustomerUser.md
 schema: 2.0.0
 ---
 
@@ -13,12 +15,12 @@ Removes a user from the customer's tenant.
 ## SYNTAX
 
 ### ByUserId (Default)
-```
+```powershell
 Remove-PartnerCustomerUser [-CustomerId] <String> -UserId <String> [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### ByUpn
-```
+```powershell
 Remove-PartnerCustomerUser [-CustomerId] <String> -UserPrincipalName <String> [-WhatIf] [-Confirm]
  [<CommonParameters>]
 ```
@@ -121,7 +123,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

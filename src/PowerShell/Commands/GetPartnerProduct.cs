@@ -1,18 +1,13 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerProduct.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System.Linq;
     using System.Management.Automation;
-    using Authentication;
-    using Common;
-    using Exceptions;
+    using Extensions;
+    using Models.Authentication;
     using Models.Products;
-    using PartnerCenter.Exceptions;
     using PartnerCenter.Models;
     using PartnerCenter.Models.Products;
 
@@ -39,7 +34,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the product catalog.
         /// </summary>
         [Parameter(ParameterSetName = "ByCatalog", Mandatory = true, HelpMessage = "A string that the product catalog.")]
-        [ValidateSet("Azure", "OnlineServices", "Software")]
+        [ValidateSet("Azure", "AzureReservations", "AzureReservationsVM", "AzureReservationsSQL", "AzureReservationsCosmosDb", "OnlineServices", "Software", "SoftwareSUSELinux", "SoftwarePerpetual", "SoftwareSubscriptions")]
         public string Catalog { get; set; }
 
         /// <summary>
@@ -54,7 +49,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            string countryCode = string.IsNullOrEmpty(CountryCode) ? PartnerProfile.Instance.Context.CountryCode : CountryCode;
+            string countryCode = string.IsNullOrEmpty(CountryCode) ? PartnerSession.Instance.Context.CountryCode : CountryCode;
 
             if (!string.IsNullOrEmpty(ProductId))
             {
@@ -89,25 +84,16 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </exception>
         private void GetProduct(string countryCode, string productId)
         {
-            Product product;
-
             countryCode.AssertNotEmpty(nameof(countryCode));
             productId.AssertNotEmpty(nameof(productId));
 
-            try
+            Product product = Partner.Products.ByCountry(countryCode).ById(productId).GetAsync().GetAwaiter().GetResult();
+
+            if (product != null)
             {
-                product = Partner.Products.ByCountry(countryCode).ById(productId).Get();
-                if (product != null)
-                    WriteObject(new PSProduct(product));
+                WriteObject(new PSProduct(product));
             }
-            catch (PartnerException ex)
-            {
-                throw new PSPartnerException("Error getting product id: " + productId, ex);
-            }
-            finally
-            {
-                product = null;
-            }
+
         }
 
         /// <summary>
@@ -122,24 +108,14 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </exception>
         private void GetProductsByCatalog(string countryCode, string targetView)
         {
-            ResourceCollection<Product> products;
-
             countryCode.AssertNotEmpty(nameof(countryCode));
             targetView.AssertNotEmpty(nameof(targetView));
 
-            try
+            ResourceCollection<Product> products = Partner.Products.ByCountry(countryCode).ByTargetView(targetView).GetAsync().GetAwaiter().GetResult();
+
+            if (products.TotalCount > 0)
             {
-                products = Partner.Products.ByCountry(countryCode).ByTargetView(targetView).Get();
-                if (products.TotalCount > 0)
-                    WriteObject(products.Items.Select(p => new PSProduct(p)), true);
-            }
-            catch (PartnerException ex)
-            {
-                throw new PSPartnerException("Error getting products for catalog: " + targetView, ex);
-            }
-            finally
-            {
-                products = null;
+                WriteObject(products.Items.Select(p => new PSProduct(p)), true);
             }
         }
 
@@ -164,19 +140,11 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             targetView.AssertNotEmpty(nameof(targetView));
             targetSegment.AssertNotEmpty(nameof(targetSegment));
 
-            try
+            products = Partner.Products.ByCountry(countryCode).ByTargetView(targetView).ByTargetSegment(targetSegment).GetAsync().GetAwaiter().GetResult();
+
+            if (products.TotalCount > 0)
             {
-                products = Partner.Products.ByCountry(countryCode).ByTargetView(targetView).ByTargetSegment(targetSegment).Get();
-                if (products.TotalCount > 0)
-                    WriteObject(products.Items.Select(p => new PSProduct(p)), true);
-            }
-            catch (PartnerException ex)
-            {
-                throw new PSPartnerException("Error getting products for segment: " + targetSegment, ex);
-            }
-            finally
-            {
-                products = null;
+                WriteObject(products.Items.Select(p => new PSProduct(p)), true);
             }
         }
     }

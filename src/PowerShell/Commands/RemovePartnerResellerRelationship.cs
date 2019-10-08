@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="RemovePartnerResellerRelationship.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -12,7 +9,6 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Text.RegularExpressions;
     using Models.Customers;
     using PartnerCenter.Models;
-    using PartnerCenter.Models.Customers;
     using PartnerCenter.Models.Subscriptions;
     using Properties;
 
@@ -26,7 +22,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the required customer identifier.
         /// </summary>
         [Parameter(HelpMessage = "The identifier of the customer.", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -34,29 +30,26 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            Customer customer;
+            PartnerCenter.Models.Customers.Customer customer;
             ResourceCollection<Subscription> subscriptions;
 
-            try
+            if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.RemovePartnerResellerRelationshipWhatIf, CustomerId)))
             {
-                if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.RemovePartnerResellerRelationshipWhatIf, CustomerId)))
+                subscriptions = Partner.Customers[CustomerId].Subscriptions.GetAsync().GetAwaiter().GetResult();
+
+                foreach (Subscription subscription in subscriptions.Items.Where(s => s.Status == SubscriptionStatus.Active))
                 {
-                    subscriptions = Partner.Customers[CustomerId].Subscriptions.Get();
-
-                    foreach (Subscription subscription in subscriptions.Items.Where(s => s.Status == SubscriptionStatus.Active))
-                    {
-                        subscription.Status = SubscriptionStatus.Suspended;
-                        Partner.Customers[CustomerId].Subscriptions[subscription.Id].Patch(subscription);
-                    }
-
-                    customer = Partner.Customers[CustomerId].Patch(new Customer { RelationshipToPartner = CustomerPartnerRelationship.None });
-
-                    WriteObject(new PSCustomer(customer));
+                    subscription.Status = SubscriptionStatus.Suspended;
+                    Partner.Customers[CustomerId].Subscriptions[subscription.Id].PatchAsync(subscription).GetAwaiter().GetResult();
                 }
-            }
-            finally
-            {
-                subscriptions = null;
+
+                customer = Partner.Customers[CustomerId].PatchAsync(
+                    new PartnerCenter.Models.Customers.Customer
+                    {
+                        RelationshipToPartner = PartnerCenter.Models.Customers.CustomerPartnerRelationship.None
+                    }).GetAwaiter().GetResult();
+
+                WriteObject(new PSCustomer(customer));
             }
         }
     }

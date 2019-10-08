@@ -1,12 +1,9 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSUsageBasedLineItem.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Invoices
 {
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Invoices;
 
     /// <summary>

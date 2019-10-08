@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerCustomerLicenseDeploymentInfo.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -20,7 +17,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the customer identifier.
         /// </summary>
         [Parameter(Mandatory = true, HelpMessage = "The identifier for the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -30,16 +27,9 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         {
             ResourceCollection<CustomerLicensesDeploymentInsights> insights;
 
-            try
-            {
-                insights = Partner.Customers[CustomerId].Analytics.Licenses.Deployment.Get();
+            insights = Partner.Customers[CustomerId].Analytics.Licenses.Deployment.GetAsync().GetAwaiter().GetResult();
 
-                WriteObject(insights.Items.Select(i => new PSCustomerLicensesDeploymentInsights(i)), true);
-            }
-            finally
-            {
-                insights = null;
-            }
+            WriteObject(insights.Items.Select(i => new PSCustomerLicensesDeploymentInsights(i)), true);
         }
     }
 }

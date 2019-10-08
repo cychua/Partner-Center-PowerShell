@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerCustomerUser.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Set-PartnerCustomerUser
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerCustomerUser.md
 schema: 2.0.0
 ---
 
@@ -13,16 +15,16 @@ Updates the specified customer user account.
 ## SYNTAX
 
 ### UserId (Default)
-```
-Set-PartnerCustomerUser [-DisplayName <String>] [-ForceChangePasswordNextLogin] [-CustomerId] <String>
- [-FirstName <String>] [-LastName <String>] [-Password <SecureString>] [-UsageLocation <String>]
+```powershell
+Set-PartnerCustomerUser [-DisplayName <String>] [-FirstName <String>] [-ForceChangePasswordNextLogin]
+ [-CustomerId] <String> [-LastName <String>] [-Password <SecureString>] [-UsageLocation <String>]
  -UserId <String> [-UserPrincipalName <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### UserObject
-```
-Set-PartnerCustomerUser [-DisplayName <String>] [-ForceChangePasswordNextLogin] [-CustomerId] <String>
- -InputObject <PSCustomerUser> [-FirstName <String>] [-LastName <String>] [-Password <SecureString>]
+```powershell
+Set-PartnerCustomerUser [-DisplayName <String>] [-FirstName <String>] [-ForceChangePasswordNextLogin]
+ [-CustomerId] <String> -InputObject <PSCustomerUser> [-LastName <String>] [-Password <SecureString>]
  [-UsageLocation <String>] [-UserPrincipalName <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
@@ -233,15 +235,15 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-### Microsoft.Store.PartnerCenter.PowerShell.Models.CustomerUsers.PSCustomerUser
+### Microsoft.Store.PartnerCenter.PowerShell.Models.Users.PSCustomerUser
 
 ## OUTPUTS
 
-### Microsoft.Store.PartnerCenter.PowerShell.Models.CustomerUsers.PSCustomerUser
+### Microsoft.Store.PartnerCenter.PowerShell.Models.Users.PSCustomerUser
 
 ## NOTES
 

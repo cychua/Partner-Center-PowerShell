@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/New-PartnerCustomer.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/New-PartnerCustomer
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/New-PartnerCustomer.md
 schema: 2.0.0
 ---
 
@@ -12,12 +14,13 @@ Creates a new customer.
 
 ## SYNTAX
 
-```
-New-PartnerCustomer -BillingAddressLine1 <String> [-BillingAddressLine2 <String>]
- [-BillingAddressCity <String>] -BillingAddressCountry <String> [-BillingAddressPostalCode <String>]
- [-BillingAddressRegion <String>] [-BillingAddressState <String>] [-ContactEmail <String>]
- [-ContactFirstName <String>] [-ContactLastName <String>] [-ContactPhoneNumber <String>] [-Culture <String>]
- -Domain <String> -Language <String> -Name <String> [-WhatIf] [-Confirm] [<CommonParameters>]
+```powershell
+New-PartnerCustomer [-AssociatedPartnerId <String>] -BillingAddressLine1 <String>
+ [-BillingAddressLine2 <String>] [-BillingAddressCity <String>] -BillingAddressCountry <String>
+ [-BillingAddressPostalCode <String>] [-BillingAddressRegion <String>] [-BillingAddressState <String>]
+ [-ContactEmail <String>] [-ContactFirstName <String>] [-ContactLastName <String>]
+ [-ContactPhoneNumber <String>] [-Culture <String>] -Domain <String> -Language <String> -Name <String>
+ [-DisableValidation] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,6 +36,21 @@ PS C:\> New-PartnerCustomer -BillingAddressLine1 '1 Microsoft Way' -BillingAddre
 Creates a new customer.
 
 ## PARAMETERS
+
+### -AssociatedPartnerId
+The associated partner identifier. Used if creating a customer for an indirect reseller.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -BillingAddressCity
 The city of the customer's billing address.
@@ -140,7 +158,7 @@ Accept wildcard characters: False
 ```
 
 ### -ContactEmail
-The email address of the primary contact at the customer.
+The email address of the primary contact of the customer.
 
 ```yaml
 Type: String
@@ -155,7 +173,7 @@ Accept wildcard characters: False
 ```
 
 ### -ContactFirstName
-The first name of the primary contact at the customer.
+The first name of the primary contact of the customer.
 
 ```yaml
 Type: String
@@ -170,7 +188,7 @@ Accept wildcard characters: False
 ```
 
 ### -ContactLastName
-The last name of the primary contact at the customer.
+The last name of the primary contact of the customer.
 
 ```yaml
 Type: String
@@ -185,7 +203,7 @@ Accept wildcard characters: False
 ```
 
 ### -ContactPhoneNumber
-The phone number of the primary contact at the customer.
+The phone number of the primary contact of the customer.
 
 ```yaml
 Type: String
@@ -204,6 +222,21 @@ The preferred culture for communication and currency.
 
 ```yaml
 Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisableValidation
+A flag that indicates whether the additional client side validation should be disabled.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
@@ -293,7 +326,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

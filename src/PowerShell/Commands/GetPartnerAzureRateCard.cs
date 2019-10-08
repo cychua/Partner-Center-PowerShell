@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerAzureRateCard.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -41,23 +38,16 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         {
             AzureRateCard rateCard;
 
-            try
+            if (SharedServices.IsPresent && SharedServices.ToBool())
             {
-                if (SharedServices.IsPresent && SharedServices.ToBool())
-                {
-                    rateCard = Partner.RateCards.Azure.GetShared(Currency, Region);
-                }
-                else
-                {
-                    rateCard = Partner.RateCards.Azure.Get(Currency, Region);
-                }
+                rateCard = Partner.RateCards.Azure.GetSharedAsync(Currency, Region).GetAwaiter().GetResult();
+            }
+            else
+            {
+                rateCard = Partner.RateCards.Azure.GetAsync(Currency, Region).GetAwaiter().GetResult();
+            }
 
-                WriteObject(new PSAzureRateCard(rateCard));
-            }
-            finally
-            {
-                rateCard = null;
-            }
+            WriteObject(new PSAzureRateCard(rateCard));
         }
     }
 }

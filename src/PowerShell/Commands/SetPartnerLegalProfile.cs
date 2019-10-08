@@ -1,17 +1,12 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="SetPartnerLegalProfile.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Exceptions;
     using Models.Partners;
-    using PartnerCenter.Exceptions;
     using PartnerCenter.Models;
     using PartnerCenter.Models.Partners;
     using Properties;
@@ -50,6 +45,12 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         [Parameter(Mandatory = false, HelpMessage = "The country portion of the address.")]
         [ValidateNotNullOrEmpty]
         public string Country { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag that indicates whether the additional client side validation should be disabled.
+        /// </summary>
+        [Parameter(HelpMessage = "A flag that indicates whether the additional client side validation should be disabled.", Mandatory = false)]
+        public SwitchParameter DisableValidation { get; set; }
 
         /// <summary>
         /// Gets or sets the email address of the primary billing contact.
@@ -108,45 +109,33 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             IValidator<Address> validator;
             LegalBusinessProfile profile;
 
-            try
+            if (ShouldProcess(Resources.SetPartnerLegalProfileWhatIf))
             {
-                if (ShouldProcess(Resources.SetPartnerLegalProfileWhatIf))
+                profile = Partner.Profiles.LegalBusinessProfile.GetAsync().GetAwaiter().GetResult();
+
+                profile.Address.AddressLine1 = UpdateValue(AddressLine1, profile.Address.AddressLine1);
+                profile.Address.AddressLine2 = UpdateValue(AddressLine2, profile.Address.AddressLine2);
+                profile.Address.City = UpdateValue(City, profile.Address.City);
+                profile.Address.Country = UpdateValue(Country, profile.Address.Country);
+                profile.Address.PostalCode = UpdateValue(PostalCode, profile.Address.PostalCode);
+                profile.Address.Region = UpdateValue(Region, profile.Address.Region);
+                profile.Address.State = UpdateValue(State, profile.Address.State);
+                profile.CompanyApproverAddress = profile.Address;
+                profile.CompanyApproverEmail = UpdateValue(EmailAddress, profile.CompanyApproverEmail);
+
+                if (!DisableValidation.ToBool())
                 {
-                    profile = Partner.Profiles.LegalBusinessProfile.Get();
+                    validator = new AddressValidator(Partner);
 
-                    profile.Address.AddressLine1 = UpdateValue(AddressLine1, profile.Address.AddressLine1);
-                    profile.Address.AddressLine2 = UpdateValue(AddressLine2, profile.Address.AddressLine2);
-                    profile.Address.City = UpdateValue(City, profile.Address.City);
-                    profile.Address.Country = UpdateValue(Country, profile.Address.Country);
-                    profile.Address.PostalCode = UpdateValue(PostalCode, profile.Address.PostalCode);
-                    profile.Address.Region = UpdateValue(Region, profile.Address.Region);
-                    profile.Address.State = UpdateValue(State, profile.Address.State);
-                    profile.CompanyApproverAddress = profile.Address;
-                    profile.CompanyApproverEmail = UpdateValue(EmailAddress, profile.CompanyApproverEmail);
-
-                    try
+                    if (!validator.IsValid(profile.Address, d => WriteDebug(d)))
                     {
-                        validator = new AddressValidator(Partner);
-
-                        if (!validator.IsValid(profile.Address))
-                        {
-                            throw new PSInvalidOperationException("The specified address is invalid. Please verify the address and try again.");
-                        }
+                        throw new PSInvalidOperationException("The specified address is invalid. Please verify the address and try again.");
                     }
-                    catch (PartnerException ex)
-                    {
-                        throw new PSPartnerException("The specified address is invalid. Please verify the address and try again.", ex);
-                    }
-
-                    profile = Partner.Profiles.LegalBusinessProfile.Update(profile);
-
-                    WriteObject(new PSLegalBusinessProfile(profile));
                 }
-            }
-            finally
-            {
-                profile = null;
-                validator = null;
+
+                profile = Partner.Profiles.LegalBusinessProfile.UpdateAsync(profile).GetAwaiter().GetResult();
+
+                WriteObject(new PSLegalBusinessProfile(profile));
             }
         }
 

@@ -1,14 +1,11 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSDevice.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.DevicesDeployment
 {
     using System;
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.DevicesDeployment;
 
     /// <summary>
@@ -21,17 +18,15 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.DevicesDeployment
         /// </summary>
         public PSDevice()
         {
-            Policies = new List<KeyValuePair<PolicyCategory, string>>();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PSDevice" /> class.
         /// </summary>
-        /// <param name="device">The base PSDevice for this instance.</param>
-        public PSDevice(Device device)
+        /// <param name="item">The base item for this instance.</param>
+        public PSDevice(Device item)
         {
-            Policies = new List<KeyValuePair<PolicyCategory, string>>();
-            this.CopyFrom(device, CloneAdditionalOperations);
+            this.CopyFrom(item, CloneAdditionalOperations);
         }
 
         /// <summary>
@@ -62,7 +57,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.DevicesDeployment
         /// <summary>
         /// Gets or sets the policies assigned. 
         /// </summary>
-        public List<KeyValuePair<PolicyCategory, string>> Policies { get; }
+        public List<KeyValuePair<PolicyCategory, string>> Policies { get; set; }
 
         /// <summary>
         /// Gets or sets the product key.
@@ -80,7 +75,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.DevicesDeployment
         public DateTime UploadedDate { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="Device"/> to an instance of <see cref="PSDevice" />. 
+        /// Additional operations to be performed when cloning an instance of <see cref="Device"/> to an instance of <see cref="PSDevice" />. 
         /// </summary>
         /// <param name="device">The device being cloned.</param>
         private void CloneAdditionalOperations(Device device) => DeviceId = device.Id;

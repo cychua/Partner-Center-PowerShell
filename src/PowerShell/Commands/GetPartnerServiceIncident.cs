@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerServiceIncident.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -10,7 +7,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Linq;
     using System.Management.Automation;
     using PartnerCenter.Models;
-    using PartnerCenter.Models.ServiceIncidents;
+    using PartnerCenter.Models.Incidents;
 
     /// <summary>
     /// Gets a list of service incidents from Partner Center.
@@ -39,31 +36,23 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             ResourceCollection<ServiceIncidents> incidents;
             IEnumerable<ServiceIncidentDetail> results;
 
-            try
-            {
-                incidents = Partner.ServiceIncidents.Get();
+            incidents = Partner.ServiceIncidents.GetAsync().GetAwaiter().GetResult();
 
-                if (incidents.TotalCount > 0)
+            if (incidents.TotalCount > 0)
+            {
+                results = incidents.Items.SelectMany(i => i.Incidents);
+
+                if (Status.HasValue)
                 {
-                    results = incidents.Items.SelectMany(i => i.Incidents);
-
-                    if (Status.HasValue)
-                    {
-                        results = results.Where(i => i.Status == Status);
-                    }
-
-                    if (!Resolved)
-                    {
-                        results = results.Where(i => i.Resolved == false);
-                    }
-
-                    WriteObject(results, true);
+                    results = results.Where(i => i.Status == Status);
                 }
-            }
-            finally
-            {
-                incidents = null;
-                results = null;
+
+                if (!Resolved)
+                {
+                    results = results.Where(i => !i.Resolved);
+                }
+
+                WriteObject(results, true);
             }
         }
     }

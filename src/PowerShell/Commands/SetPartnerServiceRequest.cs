@@ -1,15 +1,12 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="SetPartnerServiceRequest.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System;
     using System.Globalization;
     using System.Management.Automation;
-    using Authentication;
+    using Models.Authentication;
     using Models.ServiceRequests;
     using PartnerCenter.Models.ServiceRequests;
     using Properties;
@@ -45,35 +42,28 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         {
             ServiceRequest request;
 
-            try
+            if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.SetPartnerServiceRequestWhatIf, ServiceRequestId)))
             {
-                if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.SetPartnerServiceRequestWhatIf, ServiceRequestId)))
+                request = new ServiceRequest();
+
+                if (!string.IsNullOrEmpty(NewNote))
                 {
-                    request = new ServiceRequest();
-
-                    if (!string.IsNullOrEmpty(NewNote))
+                    request.NewNote = new ServiceRequestNote
                     {
-                        request.NewNote = new ServiceRequestNote
-                        {
-                            CreatedByName = PartnerProfile.Instance.Context.Username,
-                            CreatedDate = DateTime.UtcNow,
-                            Text = NewNote
-                        };
-                    }
-
-                    if (Status.HasValue)
-                    {
-                        request.Status = Status.Value;
-                    }
-
-                    request = Partner.ServiceRequests[ServiceRequestId].Patch(request);
-
-                    WriteObject(new PSServiceRequest(request));
+                        CreatedByName = PartnerSession.Instance.Context.Account.ObjectId,
+                        CreatedDate = DateTime.UtcNow,
+                        Text = NewNote
+                    };
                 }
-            }
-            finally
-            {
-                request = null;
+
+                if (Status.HasValue)
+                {
+                    request.Status = Status.Value;
+                }
+
+                request = Partner.ServiceRequests[ServiceRequestId].PatchAsync(request).GetAwaiter().GetResult();
+
+                WriteObject(new PSServiceRequest(request));
             }
         }
     }

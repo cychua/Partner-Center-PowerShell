@@ -1,21 +1,18 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerCustomerSubscription.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
+    using Extensions;
+    using Models.Customers;
+    using Models.Subscriptions;
     using PartnerCenter.Models;
     using PartnerCenter.Models.Subscriptions;
-    using PartnerCenter.PowerShell.Models.Customers;
-    using PartnerCenter.PowerShell.Models.Subscriptions;
 
-    [Cmdlet(VerbsCommon.Get, "PartnerCustomerSubscription", DefaultParameterSetName = "Customer"), OutputType(typeof(PSSubscription))]
+    [Cmdlet(VerbsCommon.Get, "PartnerCustomerSubscription", DefaultParameterSetName = "ByCustomer"), OutputType(typeof(PSSubscription))]
     public class GetPartnerCustomerSubscription : PartnerPSCmdlet
     {
         /// <summary>
@@ -31,7 +28,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         [Parameter(HelpMessage = "The identifier of the customer.", ParameterSetName = "ByCustomer", Mandatory = true)]
         [Parameter(HelpMessage = "The identifier of the customer.", ParameterSetName = "ByOrder", Mandatory = true)]
         [Parameter(HelpMessage = "The identifier of the customer.", ParameterSetName = "ByPartner", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -40,7 +37,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         [Parameter(HelpMessage = "The identifier corresponding to the order.", ParameterSetName = "ByCustomer", Mandatory = false)]
         [Parameter(HelpMessage = "The identifier corresponding to the order.", ParameterSetName = "ByCustomerObject", Mandatory = false)]
         [Parameter(HelpMessage = "The identifier corresponding to the order.", ParameterSetName = "ByOrder", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string OrderId { get; set; }
 
         /// <summary>
@@ -57,7 +54,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         [Parameter(HelpMessage = "The identifier of the subscription.", ParameterSetName = "ByCustomer", Mandatory = false)]
         [Parameter(HelpMessage = "The identifier of the subscription.", ParameterSetName = "ByCustomerObject", Mandatory = false)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string SubscriptionId { get; set; }
 
         /// <summary>
@@ -85,42 +82,28 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             customerId.AssertNotEmpty(nameof(customerId));
             subscriptionId.AssertNotEmpty(nameof(subscriptionId));
 
-            try
-            {
-                subscription = Partner.Customers[customerId].Subscriptions[subscriptionId].Get();
-                WriteObject(new PSSubscription(subscription));
-            }
-            finally
-            {
-                subscription = null;
-            }
+            subscription = Partner.Customers[customerId].Subscriptions[subscriptionId].GetAsync().GetAwaiter().GetResult();
+            WriteObject(new PSSubscription(subscription));
         }
 
         private void GetSubscriptions(string customerId, string mpnId = null, string orderId = null)
         {
             ResourceCollection<Subscription> subscriptions;
 
-            try
+            if (!string.IsNullOrWhiteSpace(mpnId))
             {
-                if (!string.IsNullOrWhiteSpace(mpnId))
-                {
-                    subscriptions = Partner.Customers[customerId].Subscriptions.ByPartner(mpnId).Get();
-                }
-                else if (!string.IsNullOrWhiteSpace(orderId))
-                {
-                    subscriptions = Partner.Customers[customerId].Subscriptions.ByOrder(orderId).Get();
-                }
-                else
-                {
-                    subscriptions = Partner.Customers[customerId].Subscriptions.Get();
-                }
+                subscriptions = Partner.Customers[customerId].Subscriptions.ByPartner(mpnId).GetAsync().GetAwaiter().GetResult();
+            }
+            else if (!string.IsNullOrWhiteSpace(orderId))
+            {
+                subscriptions = Partner.Customers[customerId].Subscriptions.ByOrder(orderId).GetAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                subscriptions = Partner.Customers[customerId].Subscriptions.GetAsync().GetAwaiter().GetResult();
+            }
 
-                WriteObject(subscriptions.Items.Select(s => new PSSubscription(s)), true);
-            }
-            finally
-            {
-                subscriptions = null;
-            }
+            WriteObject(subscriptions.Items.Select(s => new PSSubscription(s)), true);
         }
     }
 }

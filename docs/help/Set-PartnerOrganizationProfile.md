@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerOrganizationProfile.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Set-PartnerOrganizationProfile
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerOrganizationProfile.md
 schema: 2.0.0
 ---
 
@@ -12,11 +14,11 @@ Updates the partner's organization profile
 
 ## SYNTAX
 
-```
+```powershell
 Set-PartnerOrganizationProfile [-CompanyName <String>] [-AddressLine1 <String>] [-AddressLine2 <String>]
- [-City <String>] [-Country <String>] [-Culture <String>] [-Email <String>] [-FirstName <String>]
- [-Language <String>] [-LastName <String>] [-PhoneNumber <String>] [-PostalCode <String>] [-State <String>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-City <String>] [-Country <String>] [-Culture <String>] [-DisableValidation] [-Email <String>]
+ [-FirstName <String>] [-Language <String>] [-LastName <String>] [-PhoneNumber <String>] [-PostalCode <String>]
+ [-State <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -113,6 +115,21 @@ The preferred organization culture.
 
 ```yaml
 Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisableValidation
+A flag that indicates whether the additional client side validation should be disabled.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
@@ -260,7 +277,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

@@ -1,16 +1,13 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerOffer.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System.Collections.Generic;
     using System.Linq;
     using System.Management.Automation;
-    using Authentication;
-    using Common;
+    using Extensions;
+    using Models.Authentication;
     using Models.Offers;
     using PartnerCenter.Models;
     using PartnerCenter.Models.Offers;
@@ -56,7 +53,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            string countryCode = (string.IsNullOrEmpty(CountryCode)) ? PartnerProfile.Instance.Context.CountryCode : CountryCode;
+            string countryCode = (string.IsNullOrEmpty(CountryCode)) ? PartnerSession.Instance.Context.CountryCode : CountryCode;
 
             if (!string.IsNullOrEmpty(Category) && string.IsNullOrEmpty(OfferId))
             {
@@ -89,15 +86,8 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             countryCode.AssertNotEmpty(nameof(countryCode));
             offerId.AssertNotEmpty(nameof(offerId));
 
-            try
-            {
-                offer = Partner.Offers.ByCountry(countryCode).ById(offerId).Get();
-                WriteObject(new PSOffer(offer));
-            }
-            finally
-            {
-                offer = null;
-            }
+            offer = Partner.Offers.ByCountry(countryCode).ById(offerId).GetAsync().GetAwaiter().GetResult();
+            WriteObject(new PSOffer(offer));
         }
 
         /// <summary>
@@ -113,15 +103,8 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 
             countryCode.AssertNotEmpty(nameof(countryCode));
 
-            try
-            {
-                offers = Partner.Offers.ByCountry(countryCode).Get();
-                WriteOutput(offers.Items);
-            }
-            finally
-            {
-                offers = null;
-            }
+            offers = Partner.Offers.ByCountry(countryCode).GetAsync().GetAwaiter().GetResult();
+            WriteOutput(offers.Items);
         }
 
         /// <summary>
@@ -136,15 +119,8 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             countryCode.AssertNotEmpty(nameof(countryCode));
             category.AssertNotEmpty(nameof(category));
 
-            try
-            {
-                offers = Partner.Offers.ByCountry(countryCode).ByCategory(category).Get();
-                WriteOutput(offers.Items);
-            }
-            finally
-            {
-                offers = null;
-            }
+            offers = Partner.Offers.ByCountry(countryCode).ByCategory(category).GetAsync().GetAwaiter().GetResult();
+            WriteOutput(offers.Items);
         }
 
         /// <summary>
@@ -159,8 +135,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             WriteObject(
                 offers
                     .Where(o => o.IsAddOn == isAddOn && o.IsTrial == isTrial)
-                    .Select(o => new PSOffer(o))
-                    .ToList());
+                    .Select(o => new PSOffer(o)), true);
         }
     }
 }

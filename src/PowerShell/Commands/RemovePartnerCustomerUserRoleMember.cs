@@ -1,18 +1,14 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="RemovePartnerCustomerUserRoleMember.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
-    using Exceptions;
+    using Extensions;
 
     /// <summary>
-    /// Gets a list of roles for the specified customer user from Partner Center.
+    /// Removes the user from the specified role.
     /// </summary>
     [Cmdlet(VerbsCommon.Remove, "PartnerCustomerUserRoleMember"), OutputType(typeof(bool))]
     public class RemovePartnerCustomerUserRoleMember : PartnerPSCmdlet
@@ -21,18 +17,18 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the required customer identifier.
         /// </summary>
         [Parameter(Mandatory = true, HelpMessage = "The identifier of the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the user identifier.
         /// </summary>
         [Parameter(Mandatory = false, HelpMessage = "The identifier of the user.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string UserId { get; set; }
 
         /// <summary>
-        /// Gets or sets the role  identifier.
+        /// Gets or sets the role identifier.
         /// </summary>
         [Parameter(Mandatory = false, HelpMessage = "Identifier for the role.")]
         public string RoleId { get; set; }
@@ -46,18 +42,8 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             UserId.AssertNotEmpty(nameof(UserId));
             RoleId.AssertNotEmpty(nameof(RoleId));
 
-            try
-            {
-                Partner.Customers[CustomerId].DirectoryRoles[RoleId].UserMembers[UserId].Delete();
-                WriteObject(true);
-            }
-            catch (PSPartnerException ex)
-            {
-                throw new PSPartnerException("Error removing user " + UserId + "from role " + RoleId, ex);
-            }
-            finally
-            {
-            }
+            Partner.Customers[CustomerId].DirectoryRoles[RoleId].UserMembers[UserId].DeleteAsync().GetAwaiter().GetResult();
+            WriteObject(true);
         }
     }
 }

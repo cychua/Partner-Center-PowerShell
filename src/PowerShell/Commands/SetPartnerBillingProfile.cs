@@ -1,17 +1,12 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="SetPartnerBillingProfile.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Exceptions;
     using Models.Partners;
-    using PartnerCenter.Exceptions;
     using PartnerCenter.Models;
     using PartnerCenter.Models.Partners;
     using Validations;
@@ -42,6 +37,12 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         [Parameter(Mandatory = false, HelpMessage = "The city portion of the address.")]
         [ValidateNotNullOrEmpty]
         public string City { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag that indicates whether the additional client side validation should be disabled.
+        /// </summary>
+        [Parameter(HelpMessage = "A flag that indicates whether the additional client side validation should be disabled.", Mandatory = false)]
+        public SwitchParameter DisableValidation { get; set; }
 
         /// <summary>
         /// Gets or sets the email address of the primary billing contact.
@@ -114,50 +115,39 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             BillingProfile profile;
             IValidator<Address> validator;
 
-            try
+            if (ShouldProcess("Updates the partner's billing profile"))
             {
-                if (ShouldProcess("Updates the partner's billing profile"))
+                profile = Partner.Profiles.BillingProfile.GetAsync().GetAwaiter().GetResult();
+
+                profile.Address.AddressLine1 = UpdateValue(AddressLine1, profile.Address.AddressLine1);
+                profile.Address.AddressLine2 = UpdateValue(AddressLine2, profile.Address.AddressLine2);
+                profile.Address.City = UpdateValue(City, profile.Address.City);
+                profile.Address.PostalCode = UpdateValue(PostalCode, profile.Address.PostalCode);
+                profile.Address.Region = UpdateValue(Region, profile.Address.Region);
+                profile.Address.State = UpdateValue(State, profile.Address.State);
+
+                profile.PrimaryContact.Email = UpdateValue(EmailAddress, profile.PrimaryContact.Email);
+                profile.PrimaryContact.FirstName = UpdateValue(FirstName, profile.PrimaryContact.FirstName);
+                profile.PrimaryContact.LastName = UpdateValue(LastName, profile.PrimaryContact.LastName);
+                profile.PrimaryContact.PhoneNumber = UpdateValue(PhoneNumber, profile.PrimaryContact.PhoneNumber);
+
+                profile.PurchaseOrderNumber = UpdateValue(PurchaseOrderNumber, profile.PurchaseOrderNumber);
+                profile.TaxId = UpdateValue(TaxId, profile.TaxId);
+
+
+                if (!DisableValidation.ToBool())
                 {
-                    profile = Partner.Profiles.BillingProfile.Get();
+                    validator = new AddressValidator(Partner);
 
-                    profile.Address.AddressLine1 = UpdateValue(AddressLine1, profile.Address.AddressLine1);
-                    profile.Address.AddressLine2 = UpdateValue(AddressLine2, profile.Address.AddressLine2);
-                    profile.Address.City = UpdateValue(City, profile.Address.City);
-                    profile.Address.PostalCode = UpdateValue(PostalCode, profile.Address.PostalCode);
-                    profile.Address.Region = UpdateValue(Region, profile.Address.Region);
-                    profile.Address.State = UpdateValue(State, profile.Address.State);
-
-                    try
+                    if (!validator.IsValid(profile.Address, d => WriteDebug(d)))
                     {
-                        validator = new AddressValidator(Partner);
-
-                        if (!validator.IsValid(profile.Address))
-                        {
-                            throw new PSInvalidOperationException("The specified address is invalid. Please verify the address and try again.");
-                        }
+                        throw new PSInvalidOperationException("The specified address is invalid. Please verify the address and try again.");
                     }
-                    catch (PartnerException ex)
-                    {
-                        throw new PSPartnerException("The specified address is invalid. Please verify the address and try again.", ex);
-                    }
-
-                    profile.PrimaryContact.Email = UpdateValue(EmailAddress, profile.PrimaryContact.Email);
-                    profile.PrimaryContact.FirstName = UpdateValue(FirstName, profile.PrimaryContact.FirstName);
-                    profile.PrimaryContact.LastName = UpdateValue(LastName, profile.PrimaryContact.LastName);
-                    profile.PrimaryContact.PhoneNumber = UpdateValue(PhoneNumber, profile.PrimaryContact.PhoneNumber);
-
-                    profile.PurchaseOrderNumber = UpdateValue(PurchaseOrderNumber, profile.PurchaseOrderNumber);
-                    profile.TaxId = UpdateValue(TaxId, profile.TaxId);
-
-                    Partner.Profiles.BillingProfile.Update(profile);
-
-                    WriteObject(new PSBillingProfile(profile));
                 }
-            }
-            finally
-            {
-                profile = null;
-                validator = null;
+
+                Partner.Profiles.BillingProfile.UpdateAsync(profile).GetAwaiter().GetResult();
+
+                WriteObject(new PSBillingProfile(profile));
             }
         }
 

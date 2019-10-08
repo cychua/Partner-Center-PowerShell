@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="NewPartnerCustomerUser.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -10,21 +7,20 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Management.Automation;
     using System.Security;
     using System.Text.RegularExpressions;
-    using Authentication;
-    using Common;
-    using Exceptions;
-    using Models.CustomerUsers;
+    using Extensions;
+    using Models.Authentication;
+    using Models.Users;
     using PartnerCenter.Models.Users;
     using Properties;
 
     [Cmdlet(VerbsCommon.New, "PartnerCustomerUser", SupportsShouldProcess = true), OutputType(typeof(PSCustomerUser))]
-    public class NewPartnerCustomerCustomer : PartnerPSCmdlet
+    public class NewPartnerCustomerUser : PartnerPSCmdlet
     {
         /// <summary>
         /// Gets or sets the required customer identifier.
         /// </summary>
         [Parameter(HelpMessage = "The identifier of the customer.", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -84,38 +80,26 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             string country;
             CustomerId.AssertNotEmpty(nameof(CustomerId));
 
-            try
+            if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.NewPartnerCustomerUserWhatIf, UserPrincipalName)))
             {
-                if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.NewPartnerCustomerUserWhatIf, UserPrincipalName)))
-                {
-                    country = (string.IsNullOrEmpty(UsageLocation)) ? PartnerProfile.Instance.Context.CountryCode : UsageLocation;
-                    string stringPassword = SecureStringExtensions.ConvertToString(Password);
+                country = (string.IsNullOrEmpty(UsageLocation)) ? PartnerSession.Instance.Context.CountryCode : UsageLocation;
+                string stringPassword = SecureStringExtensions.ConvertToString(Password);
 
-                    newUser = new CustomerUser
+                newUser = new CustomerUser
+                {
+                    PasswordProfile = new PasswordProfile()
                     {
-                        PasswordProfile = new PasswordProfile()
-                        {
-                            ForceChangePassword = ForceChangePassword.IsPresent,
-                            Password = stringPassword
-                        },
-                        DisplayName = DisplayName,
-                        FirstName = FirstName,
-                        LastName = LastName,
-                        UsageLocation = country,
-                        UserPrincipalName = UserPrincipalName
-                    };
-                    CustomerUser createdUser = Partner.Customers[CustomerId].Users.Create(newUser);
-                    WriteObject(new PSCustomerUser(createdUser));
-                }
-            }
-            catch (PSPartnerException ex)
-            {
-                throw new PSPartnerException("Error creating user:" + UserPrincipalName, ex);
-            }
-            finally
-            {
-                newUser = null;
-                country = null;
+                        ForceChangePassword = ForceChangePassword.IsPresent,
+                        Password = stringPassword
+                    },
+                    DisplayName = DisplayName,
+                    FirstName = FirstName,
+                    LastName = LastName,
+                    UsageLocation = country,
+                    UserPrincipalName = UserPrincipalName
+                };
+                CustomerUser createdUser = Partner.Customers[CustomerId].Users.CreateAsync(newUser).GetAwaiter().GetResult();
+                WriteObject(new PSCustomerUser(createdUser));
             }
         }
     }

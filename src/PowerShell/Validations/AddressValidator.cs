@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="AddressValidator.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Validations
 {
@@ -10,15 +7,28 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Validations
     using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Common;
-    using Exceptions;
-    using PartnerCenter.Exceptions;
+    using Extensions;
     using PartnerCenter.Models;
-    using PartnerCenter.Models.CountryValidationRules;
+    using PartnerCenter.Models.ValidationRules;
     using Properties;
 
     public sealed class AddressValidator : IValidator<Address>
     {
+        /// <summary>
+        /// The country code for China.
+        /// </summary>
+        private const string ChinaCountryCode = "CN";
+
+        /// <summary>
+        /// The country code for Mexico.
+        /// </summary>
+        private const string MexicoCountryCode = "MX";
+
+        /// <summary>
+        /// The country code for the United States.
+        /// </summary>
+        private const string UnitedStatesCountryCode = "US";
+
         /// <summary>
         /// Provides the ability to interact with Partner Center.
         /// </summary>
@@ -42,85 +52,60 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Validations
         /// </summary>
         /// <param name="resource">The resource to be validate.</param>
         /// <returns><c>true</c> if the resource is valid; otherwise <c>false</c>.</returns>
-        public bool IsValid(Address resource)
+        public bool IsValid(Address resource, Action<string> debugAction)
         {
             CountryValidationRules validationRules;
 
             resource.AssertNotNull(nameof(resource));
 
-            try
+            if (resource.Country.Equals(ChinaCountryCode, StringComparison.InvariantCultureIgnoreCase) ||
+                resource.Country.Equals(MexicoCountryCode, StringComparison.InvariantCultureIgnoreCase) ||
+                resource.Country.Equals(UnitedStatesCountryCode, StringComparison.InvariantCultureIgnoreCase))
             {
-                if (resource.Country.Equals("CN", StringComparison.InvariantCultureIgnoreCase) ||
-                    resource.Country.Equals("MX", StringComparison.InvariantCultureIgnoreCase) ||
-                    resource.Country.Equals("US", StringComparison.InvariantCultureIgnoreCase))
+                debugAction("Requesting country validation services from the partner service.");
+                validationRules = partner.CountryValidationRules.ByCountry(resource.Country).GetAsync().GetAwaiter().GetResult();
+
+                if (validationRules.IsCityRequired && string.IsNullOrEmpty(resource.City))
                 {
-                    validationRules = partner.CountryValidationRules.ByCountry(resource.Country).Get();
-
-                    if (validationRules.IsCityRequired)
-                    {
-                        if (string.IsNullOrEmpty(resource.City))
-                        {
-                            throw new ValidationException(Resources.CityRequiredError);
-                        }
-                    }
-
-                    if (validationRules.IsPostalCodeRequired)
-                    {
-                        if (string.IsNullOrEmpty(resource.PostalCode))
-                        {
-                            throw new ValidationException(Resources.PostalCoderequiredError);
-                        }
-                    }
-
-                    if (validationRules.IsStateRequired)
-                    {
-                        if (string.IsNullOrEmpty(resource.State))
-                        {
-                            throw new ValidationException(Resources.StateRequiredError);
-                        }
-                        else
-                        {
-                            if (!validationRules.SupportedStatesList.Contains(resource.State))
-                            {
-                                throw new ValidationException(
-                                    string.Format(
-                                        CultureInfo.CurrentCulture,
-                                        Resources.InvalidStateError,
-                                        resource.State,
-                                        string.Join(",", validationRules.SupportedStatesList)));
-                            }
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(validationRules.PhoneNumberRegex) && !string.IsNullOrEmpty(resource.PhoneNumber))
-                    {
-                        if (!Regex.Match(resource.PhoneNumber, validationRules.PhoneNumberRegex).Success)
-                        {
-                            throw new ValidationException(
-                                string.Format(
-                                    CultureInfo.CurrentCulture,
-                                    Resources.InvalidPhoneFormatError,
-                                    resource.PhoneNumber));
-                        }
-                    }
-
+                    throw new ValidationException(Resources.CityRequiredError);
                 }
 
-                return partner.Validations.IsAddressValid(resource);
-            }
-            catch (PartnerException ex)
-            {
-                if (ex.ServiceErrorPayload != null)
+                if (validationRules.IsPostalCodeRequired && string.IsNullOrEmpty(resource.PostalCode))
                 {
-                    throw new PartnerPSException($"{ex.ServiceErrorPayload.ErrorCode} {ex.ServiceErrorPayload.ErrorMessage}", ex);
+                    throw new ValidationException(Resources.PostalCoderequiredError);
                 }
 
-                throw;
+                if (validationRules.IsStateRequired && string.IsNullOrEmpty(resource.State))
+                {
+                    throw new ValidationException(Resources.StateRequiredError);
+                }
+                else
+                {
+                    if (!validationRules.SupportedStatesList.Contains(resource.State))
+                    {
+                        throw new ValidationException(
+                            string.Format(
+                                CultureInfo.CurrentCulture,
+                                Resources.InvalidStateError,
+                                resource.State,
+                                string.Join(",", validationRules.SupportedStatesList)));
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(validationRules.PhoneNumberRegex)
+                    && !string.IsNullOrEmpty(resource.PhoneNumber) &&
+                    !Regex.Match(resource.PhoneNumber, validationRules.PhoneNumberRegex).Success)
+                {
+                    throw new ValidationException(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            Resources.InvalidPhoneFormatError,
+                            resource.PhoneNumber));
+                }
             }
-            finally
-            {
-                validationRules = null;
-            }
+
+            debugAction("Checking if the address is valid using the partner service.");
+            return partner.Validations.IsAddressValidAsync(resource).GetAwaiter().GetResult();
         }
     }
 }

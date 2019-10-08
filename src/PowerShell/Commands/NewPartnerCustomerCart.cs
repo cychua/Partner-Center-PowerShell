@@ -1,16 +1,14 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="NewPartnerCustomerCart.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
     using Models.Carts;
     using PartnerCenter.Models.Carts;
     using Properties;
@@ -22,7 +20,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the required customer identifier.
         /// </summary>
         [Parameter(HelpMessage = "The identifier of the customer.", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -31,34 +29,53 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         [Parameter(HelpMessage = "A list of cart line items.", Mandatory = true)]
         [ValidateNotNull]
         public PSCartLineItem[] LineItems { get; set; }
-
         /// <summary>
         /// Executes the operations associated with the cmdlet.
         /// </summary>
         public override void ExecuteCmdlet()
         {
             Cart cart;
+            CartLineItem lineItem;
+            List<CartLineItem> lineItems;
 
-            try
+            if (!ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.NewCartWhatIf, CustomerId)))
             {
-                if (!ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.NewCartWhatIf, CustomerId)))
-                {
-                    return;
-                }
+                return;
+            }
 
-                cart = new Cart
+            lineItems = new List<CartLineItem>();
+
+            foreach (PSCartLineItem item in LineItems)
+            {
+                lineItem = new CartLineItem
                 {
-                    LineItems = LineItems.Select(o => o.ToCartLineItem()),
+                    BillingCycle = item.BillingCycle,
+                    CatalogItemId = item.CatalogItemId,
+                    CurrencyCode = item.CurrencyCode,
+                    Error = item.Error,
+                    FriendlyName = item.FriendlyName,
+                    Id = item.Id,
+                    OrderGroup = item.OrderGroup,
+                    Participants = item.Participants,
+                    Quantity = item.Quantity
                 };
 
-                cart = Partner.Customers[CustomerId].Carts.Create(cart);
+                foreach (KeyValuePair<string, string> kvp in item.ProvisioningContext?.Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key, entry => (string)entry.Value))
+                {
+                    lineItem.ProvisioningContext.Add(kvp.Key, kvp.Value);
+                }
 
-                WriteObject(new PSCart(cart));
+                lineItems.Add(lineItem);
             }
-            finally
+
+            cart = new Cart
             {
-                cart = null;
-            }
+                LineItems = lineItems
+            };
+
+            cart = Partner.Customers[CustomerId].Carts.CreateAsync(cart).GetAwaiter().GetResult();
+
+            WriteObject(new PSCart(cart));
         }
     }
 }

@@ -1,15 +1,15 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="ClientFactory.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Factories
 {
-    using Authentication;
-    using Common;
+    using System;
+    using System.Net.Http;
     using Extensions;
-    using IdentityModel.Clients.ActiveDirectory;
+    using Identity.Client;
+    using Models.Authentication;
+    using Network;
+    using Rest;
 
     /// <summary>
     /// Factory that provides initialized clients used to interact with online services.
@@ -17,37 +17,32 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Factories
     public class ClientFactory : IClientFactory
     {
         /// <summary>
+        /// The client used to perform HTTP operations.
+        /// </summary>
+        private static readonly HttpClient HttpClient = new HttpClient(new CancelRetryHandler(3, TimeSpan.FromSeconds(10))
+        {
+            InnerHandler = new RetryDelegatingHandler
+            {
+                InnerHandler = new HttpClientHandler()
+            }
+        });
+
+        /// <summary>
         /// Creates a new instance of the object used to interface with Partner Center.
         /// </summary>
-        /// <param name="context">The partner's execution context.</param>
         /// <returns>An instance of the <see cref="PartnerOperations" /> class.</returns>
-        /// <exception cref="System.ArgumentNullException">
-        /// <paramref name="context" /> is null.
-        /// </exception>
-        public virtual IPartner CreatePartnerOperations(PartnerContext context)
+        public virtual IPartner CreatePartnerOperations()
         {
-            AuthenticationResult authResult;
+            PartnerService.Instance.ApiRootUrl = new Uri(PartnerSession.Instance.Context.Environment.PartnerCenterEndpoint);
 
-            context.AssertNotNull(nameof(context));
+            AuthenticationResult authResult = PartnerSession.Instance.AuthenticationFactory.Authenticate(
+                PartnerSession.Instance.Context.Account,
+                PartnerSession.Instance.Context.Environment,
+                new[] { PartnerSession.Instance.Context.Account.GetProperty(PartnerAccountPropertyType.Scope) });
 
-            try
-            {
-                authResult = PartnerSession.Instance.AuthenticationFactory.Authenticate(
-                    context,
-                    null);
-
-                IPartnerCredentials credentials = PartnerCredentials.Instance.GenerateByUserCredentials(
-                    context.ApplicationId,
-                    new AuthenticationToken(authResult.AccessToken, authResult.ExpiresOn));
-
-                PartnerService.Instance.ApplicationName = "Partner Center PowerShell (Preview)";
-
-                return PartnerService.Instance.CreatePartnerOperations(credentials);
-            }
-            finally
-            {
-                authResult = null;
-            }
+            return PartnerService.Instance.CreatePartnerOperations(
+                new PowerShellCredentials(new AuthenticationToken(authResult.AccessToken, authResult.ExpiresOn)),
+                HttpClient);
         }
     }
 }

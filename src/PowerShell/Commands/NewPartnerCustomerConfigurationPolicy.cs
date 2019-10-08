@@ -1,15 +1,11 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="NewPartnerCustomerConfigurationPolicy.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System.Collections.Generic;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
     using Models;
     using PartnerCenter.Models.DevicesDeployment;
     using PartnerCenter.PowerShell.Properties;
@@ -24,7 +20,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the required customer identifier.
         /// </summary>
         [Parameter(Mandatory = true, Position = 0, HelpMessage = "Identifier for the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -76,14 +72,38 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            if (!ShouldProcess(Resources.NewPartnerCustomerConfigurationPolicyWhatIf)) return;
+            ConfigurationPolicy devicePolicy;
+            List<PolicySettingsTypes> policySettings = new List<PolicySettingsTypes>();
 
-            List<PolicySettingsType> policySettings = new List<PolicySettingsType>();
-            if (OobeUserNotLocalAdmin) policySettings.Add(PolicySettingsType.OobeUserNotLocalAdmin);
-            if (SkipEula) policySettings.Add(PolicySettingsType.SkipEula);
-            if (SkipExpressSettings) policySettings.Add(PolicySettingsType.SkipExpressSettings);
-            if (RemoveOemPreinstalls) policySettings.Add(PolicySettingsType.RemoveOemPreinstalls);
-            if (SkipOemRegistration) policySettings.Add(PolicySettingsType.SkipOemRegistration);
+            if (!ShouldProcess(Resources.NewPartnerCustomerConfigurationPolicyWhatIf))
+            {
+                return;
+            }
+
+            if (OobeUserNotLocalAdmin)
+            {
+                policySettings.Add(PolicySettingsTypes.OobeUserNotLocalAdmin);
+            }
+
+            if (SkipEula)
+            {
+                policySettings.Add(PolicySettingsTypes.SkipEula);
+            }
+
+            if (SkipExpressSettings)
+            {
+                policySettings.Add(PolicySettingsTypes.SkipExpressSettings);
+            }
+
+            if (RemoveOemPreinstalls)
+            {
+                policySettings.Add(PolicySettingsTypes.RemoveOemPreinstalls);
+            }
+
+            if (SkipOemRegistration)
+            {
+                policySettings.Add(PolicySettingsTypes.SkipOemRegistration);
+            }
 
             ConfigurationPolicy configurationPolicy = new ConfigurationPolicy
             {
@@ -92,18 +112,9 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
                 PolicySettings = policySettings
             };
 
-            ConfigurationPolicy devicePolicy;
-            CustomerId.AssertNotEmpty(nameof(CustomerId));
 
-            try
-            {
-                devicePolicy = Partner.Customers[CustomerId].ConfigurationPolicies.Create(configurationPolicy);
-                WriteObject(new PSConfigurationPolicy(devicePolicy));
-            }
-            finally
-            {
-                devicePolicy = null;
-            }
+            devicePolicy = Partner.Customers[CustomerId].ConfigurationPolicies.CreateAsync(configurationPolicy).GetAwaiter().GetResult();
+            WriteObject(new PSConfigurationPolicy(devicePolicy));
         }
     }
 }

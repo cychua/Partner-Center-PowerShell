@@ -1,28 +1,21 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="IAuthenticationFactory.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Factories
 {
-    using System.Security;
-    using Authentication;
-    using IdentityModel.Clients.ActiveDirectory;
+    using System.Collections.Generic;
+    using Identity.Client;
+    using Models.Authentication;
 
     /// <summary>
-    /// Represents a factory that handles authentication operations.
+    /// Represents a factory used to perform authentication operations.
     /// </summary>
     public interface IAuthenticationFactory
     {
-        PartnerContext Authenticate(string applicationId, EnvironmentName environment, string username, SecureString password, string tenantId);
-
         /// <summary>
-        /// Authenticates the user using the specified parameters.
+        /// Acquires the security token from the authority.
         /// </summary>
-        /// <param name="context">Partner and user details used by the Partner Center cmdlets.</param>
-        /// <param name="password">The password used to authenicate the user. This value can be null.</param>
         /// <returns>The result from the authentication request.</returns>
-        AuthenticationResult Authenticate(PartnerContext context, SecureString password);
+        AuthenticationResult Authenticate(PartnerAccount account, PartnerEnvironment environment, IEnumerable<string> scopes, string message = null);
     }
 }

@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerLegalProfile.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Set-PartnerLegalProfile
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerLegalProfile.md
 schema: 2.0.0
 ---
 
@@ -12,10 +14,11 @@ Updates the partner's legal profile.
 
 ## SYNTAX
 
-```
+```powershell
 Set-PartnerLegalProfile [-AddressLine1 <String>] [-AddressLine2 <String>] [-City <String>] [-Country <String>]
- [-EmailAddress <String>] [-FirstName <String>] [-LastName <String>] [-PhoneNumber <String>]
- [-PostalCode <String>] [-Region <String>] [-State <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-DisableValidation] [-EmailAddress <String>] [-FirstName <String>] [-LastName <String>]
+ [-PhoneNumber <String>] [-PostalCode <String>] [-Region <String>] [-State <String>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -82,6 +85,21 @@ The country portion of the address.
 
 ```yaml
 Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisableValidation
+A flag that indicates whether the additional client side validation should be disabled.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
@@ -229,7 +247,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

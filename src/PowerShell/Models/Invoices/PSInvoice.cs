@@ -1,14 +1,11 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSInvoice.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Invoices
 {
     using System;
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Invoices;
 
     /// <summary>
@@ -32,14 +29,14 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Invoices
         }
 
         /// <summary>
+        /// Gets or sets the refernce number of the document which this doc amends.
+        /// </summary>
+        public string AmendsOf { get; set; }
+
+        /// <summary>
         /// Gets or sets the amendments.
         /// </summary>
         public IEnumerable<Invoice> Amendments { get; set; }
-
-        /// <summary>
-        /// Gets or sets The ref number of the document which this doc amends of.
-        /// </summary>
-        public string AmendsOf { get; set; }
 
         /// <summary>
         /// Gets or sets the currency used for all invoice item amounts and totals.
@@ -52,9 +49,14 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Invoices
         public string CurrencySymbol { get; set; }
 
         /// <summary>
-        /// Gets or sets the Document type of the invoice (CreditNote, Invoice).
+        /// Gets or sets the document type of the invoice (CreditNote, Invoice).
         /// </summary>
         public DocumentType DocumentType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the invoice unique identifier.
+        /// </summary>
+        public string InvoiceId { get; set; }
 
         /// <summary>
         /// Gets or sets the date the invoice was generated.
@@ -65,11 +67,6 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Invoices
         /// Gets or sets the invoice details.
         /// </summary>
         public IEnumerable<InvoiceDetail> InvoiceDetails { get; set; }
-
-        /// <summary>
-        /// Gets or sets the invoice unique identifier.
-        /// </summary>
-        public string InvoiceId { get; set; }
 
         /// <summary>
         /// Gets or sets invoice type. 
@@ -92,18 +89,26 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Invoices
         /// </summary>
         /// <remarks>
         /// This value is not returned as part of the search results, and will only
-        /// get populated if invoice is accessed by Id.
-        /// This link auto expires in 30 minutes.</remarks>
+        /// get populated if invoice is accessed by identifier.
+        /// This link auto expires in 30 minutes.
+        /// </remarks>
         public Uri PdfDownloadLink { get; set; }
 
         /// <summary>
-        /// Gets or sets the total charges in this invoice.
-        /// Total charges includes the transactions charges and any adjustments.
+        /// Gets or sets the invoice tax receipts
         /// </summary>
+        public IEnumerable<TaxReceipt> TaxReceipts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total charges in this invoice.
+        /// </summary>
+        /// <remarks>
+        /// Total charges includes the transactions charges and any adjustments.
+        /// </remarks>
         public decimal TotalCharges { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="Invoice" /> to an instance of <see cref="PSInvoice" />. 
+        /// Additional operations to be performed when cloning an instance of <see cref="Invoice" /> to an instance of <see cref="PSInvoice" />. 
         /// </summary>
         /// <param name="invoice">The invoice being cloned.</param>
         private void CloneAdditionalOperations(Invoice invoice)

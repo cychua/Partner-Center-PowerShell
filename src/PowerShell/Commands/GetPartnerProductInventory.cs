@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerProductInventory.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -10,11 +7,9 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Collections.Generic;
     using System.Linq;
     using System.Management.Automation;
-    using Authentication;
-    using Common;
-    using Exceptions;
+    using Extensions;
+    using Models.Authentication;
     using Models.Products;
-    using PartnerCenter.Exceptions;
     using PartnerCenter.Models.Products;
 
     /// <summary>
@@ -59,16 +54,18 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         {
             ProductId.AssertNotEmpty(nameof(ProductId));
 
-            string countryCode = (string.IsNullOrEmpty(CountryCode)) ? PartnerProfile.Instance.Context.CountryCode : CountryCode;
+            string countryCode = (string.IsNullOrEmpty(CountryCode)) ? PartnerSession.Instance.Context.CountryCode : CountryCode;
 
             if (Variables == null)
+            {
                 Variables = new Hashtable();
+            }
 
             GetProductInventory(countryCode, ProductId, SkuId, Variables);
         }
 
         /// <summary>
-        /// Gets the specified product sku.
+        /// Gets the specified product SKU.
         /// </summary>
         /// <param name="countryCode">The country used to obtain the offer.</param>
         /// <param name="productId">Identifier for the product.</param>
@@ -88,27 +85,19 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             countryCode.AssertNotEmpty(nameof(countryCode));
             productId.AssertNotEmpty(nameof(productId));
 
-            try
+            request = new InventoryCheckRequest()
             {
-                request = new InventoryCheckRequest()
-                {
-                    TargetItems = string.IsNullOrEmpty(skuId) ? new InventoryItem[] { new InventoryItem { ProductId = productId } } : new InventoryItem[] { new InventoryItem { ProductId = productId, SkuId = skuId } },
-                    InventoryContext = context.Cast<DictionaryEntry>().ToDictionary(kvp => (string)kvp.Key, kvp => (string)kvp.Value)
-                };
+                TargetItems = string.IsNullOrEmpty(skuId) ? new InventoryItem[] { new InventoryItem { ProductId = productId } } : new InventoryItem[] { new InventoryItem { ProductId = productId, SkuId = skuId } },
+            };
 
-                item = Partner.Extensions.Product.ByCountry(countryCode).CheckInventory(request);
+            foreach (KeyValuePair<string, string> kvp in context.Cast<DictionaryEntry>().ToDictionary(kvp => (string)kvp.Key, kvp => (string)kvp.Value))
+            {
+                request.InventoryContext.Add(kvp.Key, kvp.Value);
+            }
 
-                WriteObject(item.Select(i => new PSInventoryItem(i)), true);
-            }
-            catch (PartnerException ex)
-            {
-                throw new PSPartnerException(null, ex);
-            }
-            finally
-            {
-                item = null;
-                request = null;
-            }
+            item = Partner.Extensions.Product.ByCountry(countryCode).CheckInventoryAsync(request).GetAwaiter().GetResult();
+
+            WriteObject(item.Select(i => new PSInventoryItem(i)), true);
         }
     }
 }

@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerInvoiceStatement.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -19,7 +16,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// <summary>
         /// The invoice id of the statement to retrieve.
         /// </summary>
-        [Parameter(Mandatory = true, HelpMessage = "The indentifier of the invoice.")]
+        [Parameter(Mandatory = true, HelpMessage = "The identifier of the invoice.")]
         [ValidateNotNullOrEmpty]
         public string InvoiceId { get; set; }
 
@@ -31,9 +28,9 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         public string OutputPath { get; set; }
 
         /// <summary>
-        /// Gets or sets a flag indiciating whether or to overwrite the file if it exists.
+        /// Gets or sets a flag indicating whether or to overwrite the file if it exists.
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "A flag indiciating whether or not to overwrite the file if it exists.")]
+        [Parameter(Mandatory = false, HelpMessage = "A flag indicating whether or not to overwrite the file if it exists.")]
         [ValidateNotNull]
         public SwitchParameter Overwrite { get; set; }
 
@@ -48,47 +45,29 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             }
 
             DirectoryInfo dirInfo = Directory.CreateDirectory(OutputPath);
-            string filePath = "";
+            string filePath;
 
             if (dirInfo.FullName.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.CurrentCulture), System.StringComparison.CurrentCulture))
             {
-                filePath = dirInfo.FullName + InvoiceId + ".pdf";
+                filePath = $"{dirInfo.FullName}{InvoiceId}.pdf";
             }
             else
             {
-                filePath = dirInfo.FullName + Path.DirectorySeparatorChar.ToString(CultureInfo.CurrentCulture) + InvoiceId + ".pdf";
+                filePath = $"{dirInfo.FullName}{Path.DirectorySeparatorChar.ToString(CultureInfo.CurrentCulture)}{InvoiceId}.pdf";
             }
 
-            if (File.Exists(filePath))
+            if (File.Exists(filePath) && !Overwrite.IsPresent)
             {
-                if (!Overwrite.IsPresent)
-                    throw new PSInvalidOperationException("The path already exists: " + filePath + ". Specify the -Overwrite switch to overwrite the file");
+                throw new PSInvalidOperationException($"The path already exists: {filePath}. Specify the -Overwrite switch to overwrite the file");
             }
 
-            GetStatement(InvoiceId, filePath);
-        }
-
-        /// <summary>
-        ///  Gets the specified invoice statement for the specified invoiceId and outputs the PDF file to outputPath
-        /// </summary>
-        private void GetStatement(string invoiceId, string filePath)
-        {
-            Stream stream;
-            FileStream file;
-
-            try
+            using (Stream stream = Partner.Invoices.ById(InvoiceId).Documents.Statement.GetAsync().GetAwaiter().GetResult())
             {
-                stream = Partner.Invoices.ById(invoiceId).Documents.Statement.Get();
-                file = File.Create(filePath);
+                FileStream file = File.Create(filePath);
                 stream.Seek(0, SeekOrigin.Begin);
                 stream.CopyTo(file);
+
                 file.Close();
-                stream.Close();
-            }
-            finally
-            {
-                stream = null;
-                file = null;
             }
         }
     }

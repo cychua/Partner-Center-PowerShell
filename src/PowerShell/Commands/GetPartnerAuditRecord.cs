@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerAuditRecord.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -44,37 +41,29 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             List<PSAuditRecord> records;
             SeekBasedResourceCollection<AuditRecord> auditRecords;
 
-            try
+            endDate = EndDate ?? DateTime.Now;
+
+            if ((endDate - StartDate).Days >= 90)
             {
-                endDate = EndDate ?? DateTime.Now;
-
-                if ((endDate - StartDate).Days >= 90)
-                {
-                    throw new PSInvalidOperationException(Resources.AuditRecordDateError);
-                }
-
-                records = new List<PSAuditRecord>();
-
-                foreach (DateTime date in ChunkDate(StartDate, endDate, 30))
-                {
-                    auditRecords = Partner.AuditRecords.Query(
-                        date);
-
-                    enumerator = Partner.Enumerators.AuditRecords.Create(auditRecords);
-
-                    while (enumerator.HasValue)
-                    {
-                        records.AddRange(enumerator.Current.Items.Select(r => new PSAuditRecord(r)));
-                        enumerator.Next();
-                    }
-                }
-
-                WriteObject(records, true);
+                throw new PSInvalidOperationException(Resources.AuditRecordDateError);
             }
-            finally
+
+            records = new List<PSAuditRecord>();
+
+            foreach (DateTime date in ChunkDate(StartDate, endDate, 30))
             {
-                auditRecords = null;
+                auditRecords = Partner.AuditRecords.QueryAsync(date).GetAwaiter().GetResult();
+
+                enumerator = Partner.Enumerators.AuditRecords.Create(auditRecords);
+
+                while (enumerator.HasValue)
+                {
+                    records.AddRange(enumerator.Current.Items.Select(r => new PSAuditRecord(r)));
+                    enumerator.NextAsync().GetAwaiter().GetResult();
+                }
             }
+
+            WriteObject(records, true);
         }
 
         private static IEnumerable<DateTime> ChunkDate(DateTime startDate, DateTime endDate, int size)

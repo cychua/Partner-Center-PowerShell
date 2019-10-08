@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerServiceRequest.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -11,7 +8,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
+    using Extensions;
     using Models.ServiceRequests;
     using PartnerCenter.Enumerators;
     using PartnerCenter.Models;
@@ -46,7 +43,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         [Parameter(ParameterSetName = "ByCustomerId", Mandatory = true, HelpMessage = "The identifier of the customer.")]
         [Parameter(ParameterSetName = "ByRequestId", Mandatory = true, HelpMessage = "The identifier of the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -101,19 +98,14 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             customerId.AssertNotEmpty(nameof(customerId));
             requestId.AssertNotEmpty(nameof(requestId));
 
-            try
-            {
-                request = Partner.Customers.ById(customerId).ServiceRequests.ById(requestId).Get();
 
-                if (request != null)
-                {
-                    WriteObject(new PSServiceRequest(request));
-                }
-            }
-            finally
+            request = Partner.Customers.ById(customerId).ServiceRequests.ById(requestId).GetAsync().GetAwaiter().GetResult();
+
+            if (request != null)
             {
-                request = null;
+                WriteObject(new PSServiceRequest(request));
             }
+
         }
 
         /// <summary>
@@ -131,18 +123,11 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 
             customerId.AssertNotEmpty(nameof(customerId));
 
-            try
-            {
-                requests = Partner.Customers.ById(customerId).ServiceRequests.Get();
+            requests = Partner.Customers.ById(customerId).ServiceRequests.GetAsync().GetAwaiter().GetResult();
 
-                if (requests.TotalCount > 0)
-                {
-                    HandleOutput(requests, severity, status);
-                }
-            }
-            finally
+            if (requests.TotalCount > 0)
             {
-                requests = null;
+                HandleOutput(requests, severity, status);
             }
         }
 
@@ -159,19 +144,13 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 
             requestId.AssertNotEmpty(nameof(requestId));
 
-            try
-            {
-                request = Partner.ServiceRequests.ById(requestId).Get();
+            request = Partner.ServiceRequests.ById(requestId).GetAsync().GetAwaiter().GetResult();
 
-                if (request != null)
-                {
-                    WriteObject(new PSServiceRequest(request));
-                }
-            }
-            finally
+            if (request != null)
             {
-                request = null;
+                WriteObject(new PSServiceRequest(request));
             }
+
         }
 
         /// <summary>
@@ -183,18 +162,11 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         {
             ResourceCollection<ServiceRequest> requests;
 
-            try
-            {
-                requests = Partner.ServiceRequests.Get();
+            requests = Partner.ServiceRequests.GetAsync().GetAwaiter().GetResult();
 
-                if (requests.TotalCount > 0)
-                {
-                    HandleOutput(requests, severity, status);
-                }
-            }
-            finally
+            if (requests.TotalCount > 0)
             {
-                requests = null;
+                HandleOutput(requests, severity, status);
             }
         }
 
@@ -203,39 +175,32 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             IResourceCollectionEnumerator<ResourceCollection<ServiceRequest>> enumerator;
             List<ServiceRequest> serviceRequests;
 
-            try
-            {
-                enumerator = Partner.Enumerators.ServiceRequests.Create(requests);
-                serviceRequests = new List<ServiceRequest>();
+            enumerator = Partner.Enumerators.ServiceRequests.Create(requests);
+            serviceRequests = new List<ServiceRequest>();
 
-                while (enumerator.HasValue)
-                {
-                    serviceRequests.AddRange(enumerator.Current.Items);
-                    enumerator.Next();
-                }
-
-                if (severity.HasValue && status.HasValue)
-                {
-                    WriteObject(serviceRequests.Where(r => r.Severity == severity && r.Status == status).Select(r => new PSServiceRequest(r)), true);
-                }
-                else if (severity.HasValue)
-                {
-                    WriteObject(serviceRequests.Where(r => r.Severity == severity).Select(r => new PSServiceRequest(r)), true);
-                }
-                else if (status.HasValue)
-                {
-                    WriteObject(serviceRequests.Where(r => r.Status == status).Select(r => new PSServiceRequest(r)), true);
-                }
-                else
-                {
-                    WriteObject(serviceRequests.Select(r => new PSServiceRequest(r)), true);
-                }
-            }
-            finally
+            while (enumerator.HasValue)
             {
-                enumerator = null;
-                serviceRequests = null;
+                serviceRequests.AddRange(enumerator.Current.Items);
+                enumerator.NextAsync().GetAwaiter().GetResult();
             }
+
+            if (severity.HasValue && status.HasValue)
+            {
+                WriteObject(serviceRequests.Where(r => r.Severity == severity && r.Status == status).Select(r => new PSServiceRequest(r)), true);
+            }
+            else if (severity.HasValue)
+            {
+                WriteObject(serviceRequests.Where(r => r.Severity == severity).Select(r => new PSServiceRequest(r)), true);
+            }
+            else if (status.HasValue)
+            {
+                WriteObject(serviceRequests.Where(r => r.Status == status).Select(r => new PSServiceRequest(r)), true);
+            }
+            else
+            {
+                WriteObject(serviceRequests.Select(r => new PSServiceRequest(r)), true);
+            }
+
         }
     }
 }

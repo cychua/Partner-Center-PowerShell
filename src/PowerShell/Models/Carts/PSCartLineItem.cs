@@ -1,16 +1,12 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSCartLineItem.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
 {
     using System.Collections;
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Carts;
-    using PartnerCenter.Models.Carts.Enums;
     using PartnerCenter.Models.Products;
 
     /// <summary>
@@ -37,6 +33,11 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
         }
 
         /// <summary>
+        /// Gets or sets a list of items that depend on this one, so they have to be purchased subsequently.
+        /// </summary>
+        public IEnumerable<CartLineItem> AddonItems { get; set; }
+
+        /// <summary>
         /// Gets or sets the type of billing cycle for the selected catalog item.
         /// </summary>
         public BillingCycleType BillingCycle { get; set; }
@@ -57,7 +58,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
         public CartError Error { get; set; }
 
         /// <summary>
-        /// Gets or sets the friendly name for the result contract (subscription)
+        /// Gets or sets the friendly name for the result contract (subscription).
         /// </summary>
         public string FriendlyName { get; set; }
 
@@ -77,7 +78,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
         public IEnumerable<KeyValuePair<ParticipantType, string>> Participants { get; set; }
 
         /// <summary>
-        /// Gets or sets a context that will be used for provisioning of the catalog item.
+        /// Gets a context that will be used for provisioning of the catalog item.
         /// </summary>
         public Hashtable ProvisioningContext { get; }
 
@@ -87,7 +88,12 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
         public int Quantity { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="CartLineItem" /> to an instance of <see cref="PSCartLineItem" />. 
+        /// Gets or sets the term duration if applicable.
+        /// </summary>
+        public string TermDuration { get; set; }
+
+        /// <summary>
+        /// Additional operations to be performed when cloning an instance of <see cref="CartLineItem" /> to an instance of <see cref="PSCartLineItem" />. 
         /// </summary>
         /// <param name="lineItem">An instance of the <see cref="CartLineItem" /> class that will serve as base for this instance.</param>
         private void CloneAdditionalOperations(CartLineItem lineItem)

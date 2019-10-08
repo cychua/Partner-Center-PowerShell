@@ -1,127 +1,100 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="AuthenticationFactory.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Factories
 {
     using System;
-    using System.Security;
-    using Authentication;
-    using Common;
-    using IdentityModel.Clients.ActiveDirectory;
-    using PartnerCenter.Models.Partners;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Authenticators;
+    using Extensions;
+    using Identity.Client;
+    using Models.Authentication;
 
     /// <summary>
-    /// Factory that handles authenticaton operations.
+    /// Factory used to perform authentication operations.
     /// </summary>
-    public class AuthenticationFactory : IAuthenticationFactory
+    internal class AuthenticationFactory : IAuthenticationFactory
     {
-        public PartnerContext Authenticate(string applicationId, EnvironmentName environment, string username, SecureString password, string tenantId)
+        internal IAuthenticatorBuilder Builder => new DefaultAuthenticatorBuilder();
+
+        public AuthenticationResult Authenticate(PartnerAccount account, PartnerEnvironment environment, IEnumerable<string> scopes, string message = null)
         {
-            AuthenticationResult authResult;
-            IPartner partner;
-            OrganizationProfile profile;
-            PartnerContext context;
+            AuthenticationResult authResult = null;
+            IAuthenticator processAuthenticator = Builder.Authenticator;
+            int retries = 5;
 
-            applicationId.AssertNotEmpty(nameof(applicationId));
-            environment.AssertNotNull(nameof(environment));
-            tenantId.AssertNotEmpty(nameof(tenantId));
-
-            try
+            while (retries-- > 0)
             {
-                context = new PartnerContext
+                try
                 {
-                    ApplicationId = applicationId,
-                    Environment = environment,
-                    TenantId = tenantId,
-                    Username = username
-                };
+                    while (processAuthenticator != null && processAuthenticator.TryAuthenticate(GetAuthenticationParameters(account, environment, scopes, message), out Task<AuthenticationResult> result))
+                    {
+                        authResult = result.ConfigureAwait(true).GetAwaiter().GetResult();
 
-                authResult = Authenticate(context, password);
+                        if (authResult != null)
+                        {
+                            if (authResult.Account?.HomeAccountId != null)
+                            {
+                                account.Identifier = authResult.Account.HomeAccountId.Identifier;
+                                account.ObjectId = authResult.Account.HomeAccountId.ObjectId;
+                            }
 
-                partner = PartnerSession.Instance.ClientFactory.CreatePartnerOperations(context);
-                profile = partner.Profiles.OrganizationProfile.Get();
+                            if (account.Tenant.Equals("common", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(authResult.TenantId))
+                            {
+                                account.Tenant = authResult.TenantId;
+                            }
 
-                context.CountryCode = profile.DefaultAddress.Country;
-                context.Locale = profile.Culture;
-                context.UserId = authResult.UserInfo.UniqueId;
+                            break;
+                        }
 
-                return context;
+                        processAuthenticator = processAuthenticator.Next;
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    continue;
+                }
+
+                break;
             }
-            finally
-            {
-                authResult = null;
-                partner = null;
-                profile = null;
-            }
+
+            return authResult ?? null;
         }
 
-        /// <summary>
-        /// Authenticates the user using the specified parameters.
-        /// </summary>
-        /// <param name="context">The partner's execution context.</param>
-        /// <param name="password">The password used to authenicate the user. This value can be null.</param>
-        /// <returns>The result from the authentication request.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="context"/> is null.
-        /// </exception>
-        public AuthenticationResult Authenticate(PartnerContext context, SecureString password)
+        private AuthenticationParameters GetAuthenticationParameters(PartnerAccount account, PartnerEnvironment environment, IEnumerable<string> scopes, string message = null)
         {
-            AuthenticationContext authContext;
-            AuthenticationResult authResult;
-            PartnerEnvironment environment;
-
-            context.AssertNotNull(nameof(context));
-
-            try
+            if (account.IsPropertySet(PartnerAccountPropertyType.AccessToken))
             {
-                environment = PartnerEnvironment.PublicEnvironments[context.Environment];
-
-                authContext = new AuthenticationContext($"{environment.ActiveDirectoryAuthority}{context.TenantId}");
-
-                if (string.IsNullOrEmpty(context.Username))
-                {
-                    authResult = authContext.AcquireToken(
-                        environment.PartnerCenterEndpoint,
-                        context.ApplicationId,
-                        new Uri("urn:ietf:wg:oauth:2.0:oob"),
-                        PromptBehavior.Always,
-                        UserIdentifier.AnyUser);
-
-                    context.TenantId = authResult.TenantId;
-                    context.Username = authResult.UserInfo.DisplayableId;
-                }
-                else if (password != null)
-                {
-                    authResult = authContext.AcquireToken(
-                        environment.PartnerCenterEndpoint,
-                        context.ApplicationId,
-                        new UserCredential(
-                            context.Username,
-                            password));
-
-                    context.TenantId = authResult.TenantId;
-                    context.Username = authResult.UserInfo.DisplayableId;
-                }
-                else
-                {
-                    authResult = authContext.AcquireToken(
-                        environment.PartnerCenterEndpoint,
-                        context.ApplicationId,
-                        new Uri("urn:ietf:wg:oauth:2.0:oob"),
-                        PromptBehavior.Never,
-                        new UserIdentifier(context.Username, UserIdentifierType.RequiredDisplayableId));
-                }
-
-                return authResult;
+                return new AccessTokenParameters(account, environment, scopes);
             }
-            finally
+            else if (account.IsPropertySet("UseAuthCode"))
             {
-                authContext = null;
-                environment = null;
+                return new InteractiveParameters(account, environment, scopes, message);
             }
+            else if (account.IsPropertySet(PartnerAccountPropertyType.RefreshToken))
+            {
+                return new RefreshTokenParameters(account, environment, scopes);
+            }
+            else if (account.Type == AccountType.User)
+            {
+                if (!string.IsNullOrEmpty(account.ObjectId))
+                {
+                    return new SilentParameters(account, environment, scopes);
+                }
+                else if (account.IsPropertySet("UseDeviceAuth"))
+                {
+                    return new DeviceCodeParameters(account, environment, scopes);
+                }
+
+                return new InteractiveParameters(account, environment, scopes, message);
+            }
+            else if (account.Type == AccountType.ServicePrincipal || account.Type == AccountType.Certificate)
+            {
+                return new ServicePrincipalParameters(account, environment, scopes);
+            }
+
+            return null;
         }
     }
 }

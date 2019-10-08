@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="SetPartnerCustomerUserLicense.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -21,7 +18,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the customer identifier.
         /// </summary>
         [Parameter(HelpMessage = "The identifier for the customer.", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -35,7 +32,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the user identifier.
         /// </summary>
         [Parameter(HelpMessage = "The identifier for the user.", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string UserId { get; set; }
 
         /// <summary>
@@ -46,39 +43,31 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             LicenseUpdate update;
             List<LicenseAssignment> licensesToAssign;
 
-            try
+            if (ShouldProcess(string.Format(
+                CultureInfo.CurrentCulture,
+                Resources.SetPartnerCustomerUserLicenseWhatIf,
+                UserId)))
             {
-                if (ShouldProcess(string.Format(
-                    CultureInfo.CurrentCulture,
-                    Resources.SetPartnerCustomerUserLicenseWhatIf,
-                    UserId)))
+                licensesToAssign = new List<LicenseAssignment>();
+
+                foreach (PSLicenseAssignment licenseAssignment in LicenseUpdate.LicensesToAssign)
                 {
-                    licensesToAssign = new List<LicenseAssignment>();
-
-                    foreach (PSLicenseAssignment licenseAssignment in LicenseUpdate.LicensesToAssign)
+                    licensesToAssign.Add(new LicenseAssignment
                     {
-                        licensesToAssign.Add(new LicenseAssignment
-                        {
-                            ExcludedPlans = licenseAssignment.ExcludedPlans,
-                            SkuId = licenseAssignment.SkuId
-                        });
-                    }
-
-                    update = new LicenseUpdate
-                    {
-                        LicensesToAssign = licensesToAssign,
-                        LicensesToRemove = LicenseUpdate.LicensesToRemove
-                    };
-
-                    update = Partner.Customers[CustomerId].Users[UserId].LicenseUpdates.Create(update);
-
-                    WriteObject(new PSLicenseUpdate(update));
+                        ExcludedPlans = licenseAssignment.ExcludedPlans,
+                        SkuId = licenseAssignment.SkuId
+                    });
                 }
-            }
-            finally
-            {
-                licensesToAssign = null;
-                update = null;
+
+                update = new LicenseUpdate
+                {
+                    LicensesToAssign = licensesToAssign,
+                    LicensesToRemove = LicenseUpdate.LicensesToRemove
+                };
+
+                update = Partner.Customers[CustomerId].Users[UserId].LicenseUpdates.CreateAsync(update).GetAwaiter().GetResult();
+
+                WriteObject(new PSLicenseUpdate(update));
             }
         }
     }

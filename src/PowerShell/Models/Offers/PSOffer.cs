@@ -1,13 +1,10 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSOffer.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Offers
 {
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Invoices;
     using PartnerCenter.Models.Offers;
 
@@ -132,9 +129,9 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Offers
         public string UnitType { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="Offer" /> to an instance of <see cref="PSOffer" />. 
+        /// Additional operations to be performed when cloning an instance of <see cref="Offer" /> to an instance of <see cref="PSOffer" />. 
         /// </summary>
-        /// <param name="offer">The invoice being cloned.</param>
+        /// <param name="offer">The offer being cloned.</param>
         private void CloneAdditionalOperations(Offer offer) => OfferId = offer.Id;
     }
 }

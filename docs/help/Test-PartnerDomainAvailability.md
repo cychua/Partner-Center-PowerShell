@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Test-PartnerDomainAvailability.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Test-PartnerDomainAvailability
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Test-PartnerDomainAvailability.md
 schema: 2.0.0
 ---
 
@@ -12,7 +14,7 @@ Tests if the specified domain name is available for creating a new tenant.
 
 ## SYNTAX
 
-```
+```powershell
 Test-PartnerDomainAvailability [-Domain] <String> [<CommonParameters>]
 ```
 
@@ -47,7 +49,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -58,7 +60,5 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ### System.Boolean
 
 ## NOTES
-
-27 characters is maximum domain prefix + 16 maximum characters for the ".onmicrosoft.com" suffix
 
 ## RELATED LINKS

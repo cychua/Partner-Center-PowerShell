@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="AddPartnerCustomerCartLineItem.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -11,7 +8,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
+    using Extensions;
     using Models.Carts;
     using PartnerCenter.Models.Carts;
     using Properties;
@@ -33,7 +30,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the required customer identifier.
         /// </summary>
         [Parameter(HelpMessage = "The identifier for the customer.", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -52,28 +49,19 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             CartLineItem cartLineItem;
             List<CartLineItem> lineItems;
 
-            try
+            if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.AddPartnerCustomerCartLineItemWhatIf, CartId)))
             {
-                if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.AddPartnerCustomerCartLineItemWhatIf, CartId)))
-                {
-                    cart = Partner.Customers[CustomerId].Carts[CartId].Get();
-                    lineItems = cart.LineItems.ToList();
+                cart = Partner.Customers[CustomerId].Carts[CartId].GetAsync().GetAwaiter().GetResult();
+                lineItems = cart.LineItems.ToList();
 
-                    cartLineItem = new CartLineItem();
-                    cartLineItem.CopyFrom(LineItem);
+                cartLineItem = new CartLineItem();
+                cartLineItem.CopyFrom(LineItem);
 
-                    lineItems.Add(cartLineItem);
+                lineItems.Add(cartLineItem);
 
-                    cart = Partner.Customers[CustomerId].Carts[CartId].Put(cart);
+                cart = Partner.Customers[CustomerId].Carts[CartId].PutAsync(cart).GetAwaiter().GetResult();
 
-                    WriteObject(new PSCart(cart));
-                }
-            }
-            finally
-            {
-                cart = null;
-                cartLineItem = null;
-                lineItems = null;
+                WriteObject(new PSCart(cart));
             }
         }
     }

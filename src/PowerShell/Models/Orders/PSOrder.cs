@@ -1,15 +1,12 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSOrder.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Orders
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Offers;
     using PartnerCenter.Models.Orders;
 
@@ -52,6 +49,11 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Orders
         public string CurrencyCode { get; set; }
 
         /// <summary>
+        /// Gets or sets the currency symbol.
+        /// </summary>
+        public string CurrencySymbol { get; set; }
+
+        /// <summary>
         /// Gets or sets the Order line items. Each order line item refers to one offer's purchase data.
         /// </summary>
         public List<PSOrderLineItem> LineItems { get; }
@@ -72,7 +74,20 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Orders
         public string Status { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="Order"/> to an instance of <see cref="PSOrder" />. 
+        /// Gets the total price for the order.
+        /// </summary>
+        /// <remarks>
+        /// This information will not be returned unless explicitly requested. 
+        /// </remarks>
+        public double? TotalPrice { get; private set; }
+
+        /// <summary>
+        /// Gets the transaction type.
+        /// </summary>
+        public string TransactionType { get; private set; }
+
+        /// <summary>
+        /// Additional operations to be performed when cloning an instance of <see cref="Order"/> to an instance of <see cref="PSOrder" />. 
         /// </summary>
         /// <param name="order">The order being cloned.</param>
         private void CloneAdditionalOperations(Order order)

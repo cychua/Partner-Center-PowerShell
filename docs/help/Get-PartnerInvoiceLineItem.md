@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerInvoiceLineItem.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Get-PartnerInvoiceLineItem
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerInvoiceLineItem.md
 schema: 2.0.0
 ---
 
@@ -12,8 +14,8 @@ Gets the line items for the specified invoice.
 
 ## SYNTAX
 
-```
-Get-PartnerInvoiceLineItem -BillingProvider <BillingProvider> -InvoiceId <String>
+```powershell
+Get-PartnerInvoiceLineItem -BillingProvider <BillingProvider> [-CurrencyCode <String>] -InvoiceId <String>
  -LineItemType <InvoiceLineItemType> [<CommonParameters>]
 ```
 
@@ -38,9 +40,24 @@ The billing provide for the line items.
 Type: BillingProvider
 Parameter Sets: (All)
 Aliases:
-Accepted values: Azure, AzureDataMarket, Office, OneTime
+Accepted values: Azure, Office, OneTime, Marketplace
 
 Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CurrencyCode
+The currency code for the unbilled line items.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -79,7 +96,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

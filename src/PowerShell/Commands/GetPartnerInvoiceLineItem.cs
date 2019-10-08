@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerInvoiceLineItem.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -24,8 +21,15 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the billing provider.
         /// </summary>
         [Parameter(HelpMessage = "The billing provide for the line items.", Mandatory = true)]
-        [ValidateSet(nameof(BillingProvider.Azure), nameof(BillingProvider.AzureDataMarket), nameof(BillingProvider.Office), nameof(BillingProvider.OneTime))]
+        [ValidateSet(nameof(BillingProvider.Azure), nameof(BillingProvider.Office), nameof(BillingProvider.OneTime), nameof(BillingProvider.Marketplace))]
         public BillingProvider BillingProvider { get; set; }
+
+        /// <summary>
+        /// Gets or sets the currenty code.
+        /// </summary>
+        [Parameter(HelpMessage = "The currency code for the unbilled line items.", Mandatory = false)]
+        [ValidateNotNull]
+        public string CurrencyCode { get; set; }
 
         /// <summary>
         /// Gets or set the identifier for the invoice.
@@ -50,52 +54,53 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
             List<InvoiceLineItem> items;
             ResourceCollection<InvoiceLineItem> lineItems;
 
-            try
+            if (BillingProvider == BillingProvider.Marketplace)
             {
-                lineItems = Partner.Invoices[InvoiceId].By(BillingProvider, LineItemType).Get();
-                enumerator = Partner.Enumerators.InvoiceLineItems.Create(lineItems);
-                items = new List<InvoiceLineItem>();
+                lineItems = Partner.Invoices[InvoiceId].By(BillingProvider, LineItemType, CurrencyCode, BillingPeriod.Current).GetAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                lineItems = Partner.Invoices[InvoiceId].By(BillingProvider, LineItemType).GetAsync().GetAwaiter().GetResult();
+            }
 
-                while (enumerator.HasValue)
-                {
-                    items.AddRange(enumerator.Current.Items);
-                    enumerator.Next();
-                }
+            enumerator = Partner.Enumerators.InvoiceLineItems.Create(lineItems);
+            items = new List<InvoiceLineItem>();
 
-                if (LineItemType == InvoiceLineItemType.BillingLineItems)
+            while (enumerator.HasValue)
+            {
+                items.AddRange(enumerator.Current.Items);
+                enumerator.NextAsync().GetAwaiter().GetResult();
+            }
+
+            if (LineItemType == InvoiceLineItemType.BillingLineItems)
+            {
+                if (BillingProvider == BillingProvider.Azure)
                 {
-                    if (BillingProvider == BillingProvider.Azure)
-                    {
-                        WriteObject(items.Select(i => new PSUsageBasedLineItem((UsageBasedLineItem)i)), true);
-                    }
-                    else if (BillingProvider == BillingProvider.AzureDataMarket)
-                    {
-                        WriteObject(items.Select(i => new PSAzureDataMarketLineItem((AzureDataMarketLineItem)i)), true);
-                    }
-                    else if (BillingProvider == BillingProvider.Office)
-                    {
-                        WriteObject(items.Select(i => new PSLicenseBasedLineItem((LicenseBasedLineItem)i)), true);
-                    }
-                    else if (BillingProvider == BillingProvider.OneTime)
-                    {
-                        WriteObject(items.Select(i => new PSOneTimeInvoiceLineItem((OneTimeInvoiceLineItem)i)), true);
-                    }
+                    WriteObject(items.Select(i => new PSUsageBasedLineItem((UsageBasedLineItem)i)), true);
                 }
-                else
+                else if (BillingProvider == BillingProvider.Office)
                 {
-                    if (BillingProvider == BillingProvider.Azure)
-                    {
-                        WriteObject(items.Select(i => new PSDailyUsageLineItem((DailyUsageLineItem)i)), true);
-                    }
-                    else if (BillingProvider == BillingProvider.AzureDataMarket)
-                    {
-                        WriteObject(items.Select(i => new PSAzureDataMarketDailyUsageLineItem((AzureDataMarketDailyUsageLineItem)i)), true);
-                    }
+                    WriteObject(items.Select(i => new PSLicenseBasedLineItem((LicenseBasedLineItem)i)), true);
+                }
+                else if (BillingProvider == BillingProvider.OneTime)
+                {
+                    WriteObject(items.Select(i => new PSOneTimeInvoiceLineItem((OneTimeInvoiceLineItem)i)), true);
+                }
+                else if (BillingProvider == BillingProvider.Marketplace)
+                {
+                    WriteObject(items.Select(i => new PSDailyRatedUsageLineItem((DailyRatedUsageLineItem)i)), true);
                 }
             }
-            finally
+            else
             {
-                lineItems = null;
+                if (BillingProvider == BillingProvider.Azure)
+                {
+                    WriteObject(items.Select(i => new PSDailyUsageLineItem((DailyUsageLineItem)i)), true);
+                }
+                else if (BillingProvider == BillingProvider.Marketplace)
+                {
+                    WriteObject(items.Select(i => new PSDailyRatedUsageLineItem((DailyRatedUsageLineItem)i)), true);
+                }
             }
         }
     }

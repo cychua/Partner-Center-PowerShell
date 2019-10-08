@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerMpnProfile.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -27,23 +24,16 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         {
             MpnProfile profile;
 
-            try
+            if (string.IsNullOrEmpty(MpnId))
             {
-                if (string.IsNullOrEmpty(MpnId))
-                {
-                    profile = Partner.Profiles.MpnProfile.Get();
-                }
-                else
-                {
-                    profile = Partner.Profiles.MpnProfile.Get(MpnId);
-                }
+                profile = Partner.Profiles.MpnProfile.GetAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                profile = Partner.Profiles.MpnProfile.GetAsync(MpnId).GetAwaiter().GetResult();
+            }
 
-                WriteObject(new PSMpnProfile(profile));
-            }
-            finally
-            {
-                profile = null;
-            }
+            WriteObject(new PSMpnProfile(profile));
         }
     }
 }

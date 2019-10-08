@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerCustomerSubscription.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Set-PartnerCustomerSubscription
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Set-PartnerCustomerSubscription.md
 schema: 2.0.0
 ---
 
@@ -12,18 +14,18 @@ Updates the specified customer subscription.
 
 ## SYNTAX
 
-### Customer
-```
-Set-PartnerCustomerSubscription [-AutoRenew <Boolean>] -CustomerId <String> [-FriendlyName <String>]
- [-Quantity <Int32>] [-Status <SubscriptionStatus>] -SubscriptionId <String> [-WhatIf] [-Confirm]
- [<CommonParameters>]
+### CustomerObject
+```powershell
+Set-PartnerCustomerSubscription -InputObject <PSCustomer> [-BillingCycle <BillingCycleType>]
+ [-FriendlyName <String>] [-Quantity <Int32>] [-Status <SubscriptionStatus>] -SubscriptionId <String> [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
-### CustomerObject
-```
-Set-PartnerCustomerSubscription [-AutoRenew <Boolean>] -InputObject <PSCustomer> [-FriendlyName <String>]
- [-Quantity <Int32>] [-Status <SubscriptionStatus>] -SubscriptionId <String> [-WhatIf] [-Confirm]
- [<CommonParameters>]
+### Customer
+```powershell
+Set-PartnerCustomerSubscription [-BillingCycle <BillingCycleType>] -CustomerId <String>
+ [-FriendlyName <String>] [-Quantity <Int32>] [-Status <SubscriptionStatus>] -SubscriptionId <String> [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,20 +35,21 @@ Updates the specified customer subscription.
 
 ### Example 1
 ```powershell
-PS C:\> Set-ParnterCustomerSubscription -AutoRenew $false -CustomerId 46a62ece-10ad-42e5-b3f1-b2ed53e6fc08 -Subscription dace42ca-22df-4b1f-8f9e-992364dd866e
+PS C:\> Set-ParnterCustomerSubscription -CustomerId 46a62ece-10ad-42e5-b3f1-b2ed53e6fc08 -Subscription dace42ca-22df-4b1f-8f9e-992364dd866e -Quantity 10
 ```
 
-Disables the auto renew functionality for the specified subscription.
+Updates the quantity of the subscription to 10 units.
 
 ## PARAMETERS
 
-### -AutoRenew
-A flag indiciating whether or not the subscription will auto renew.
+### -BillingCycle
+The billing cycle for the subscription.
 
 ```yaml
-Type: Boolean
+Type: BillingCycleType
 Parameter Sets: (All)
 Aliases:
+Accepted values: Annual, Monthly
 
 Required: False
 Position: Named
@@ -122,7 +125,7 @@ The status of the subscription.
 Type: SubscriptionStatus
 Parameter Sets: (All)
 Aliases:
-Accepted values: None, Active, Suspended, Deleted
+Accepted values: Active, Deleted, Suspended
 
 Required: False
 Position: Named
@@ -178,7 +181,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

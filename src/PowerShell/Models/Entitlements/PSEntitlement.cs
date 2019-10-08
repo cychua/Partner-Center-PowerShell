@@ -1,13 +1,11 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSEntitlement.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Entitlements
 {
+    using System;
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Entitlements;
 
     /// <summary>
@@ -36,9 +34,19 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Entitlements
         public IEnumerable<Artifact> EntitledArtifacts { get; set; }
 
         /// <summary>
-        ///  Gets or sets the entitlement type.
+        /// Gets or sets entitlement type.
         /// </summary>
         public string EntitlementType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the entitlement expiry date.
+        /// </summary>
+        public DateTime? ExpiryDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the fulfillment state for the current entitlement.
+        /// </summary>
+        public string FulfillmentState { get; set; }
 
         /// <summary>
         /// Gets or sets included entitlements.
@@ -46,7 +54,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Entitlements
         public IEnumerable<Entitlement> IncludedEntitlements { get; set; }
 
         /// <summary>
-        /// Gets or sets identifier of the product.
+        /// Gets or sets product identifier.
         /// </summary>
         public string ProductId { get; set; }
 
@@ -66,7 +74,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Entitlements
         public ReferenceOrder ReferenceOrder { get; set; }
 
         /// <summary>
-        /// Gets or sets identifier of the SKU.
+        /// Gets or sets SKU identifier.
         /// </summary>
         public string SkuId { get; set; }
     }

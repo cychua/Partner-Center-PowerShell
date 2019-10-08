@@ -1,12 +1,9 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSProduct.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Products
 {
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Products;
 
     /// <summary>
@@ -35,19 +32,24 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Products
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the id.
+        /// Gets or sets a value indicating whether this is a Microsoft product or not.
+        /// </summary>
+        public bool IsMicrosoftProduct { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier.
         /// </summary>
         public string ProductId { get; set; }
 
         /// <summary>
         /// Gets or sets the product type.
         /// </summary>
-        public ItemType ProductType { get; set; }
+        public string ProductType { get; set; }
 
         /// <summary>
-        /// Gets or sets the product type name.
+        /// Gets or sets the publisher name.
         /// </summary>
-        public string Type { get; set; }
+        public string PublisherName { get; set; }
 
         /// <summary>
         /// Gets or sets the title.
@@ -55,7 +57,12 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Products
         public string Title { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="Product"/> to an instance of <see cref="PSProduct" />. 
+        /// Gets or sets the produc type.
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Additional operations to be performed when cloning an instance of <see cref="Product"/> to an instance of <see cref="PSProduct" />. 
         /// </summary>
         /// <param name="product">The product being cloned.</param>
         private void CloneAdditionalOperations(Product product)

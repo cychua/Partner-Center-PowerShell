@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="SetPartnerCustomerUser.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -10,10 +7,8 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Management.Automation;
     using System.Security;
     using System.Text.RegularExpressions;
-    using Common;
-    using Exceptions;
-    using Models.CustomerUsers;
-    using PartnerCenter.Exceptions;
+    using Extensions;
+    using Models.Users;
     using PartnerCenter.Models.Users;
     using Properties;
 
@@ -24,74 +19,70 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     public class SetPartnerCustomerUser : PartnerPSCmdlet
     {
         /// <summary>
-        /// Sets the optional user display name.
+        /// Gets or sets the display name for the user.
         /// </summary>
-        [Parameter(Mandatory = false, ParameterSetName = "UserObject", HelpMessage = "User's display name.")]
-        [Parameter(Mandatory = false, ParameterSetName = "UserId", HelpMessage = "User's display name.")]
+        [Parameter(HelpMessage = "The display name for the user.", Mandatory = false)]
         public string DisplayName { get; set; }
 
         /// <summary>
-        /// Gets or sets a flag that specifies whether user must change password on next login.
+        /// Gets or sets the first name for the user.
         /// </summary>
-        [Parameter(Mandatory = false, ParameterSetName = "UserObject", HelpMessage = "Forces user to change password during next login.")]
-        [Parameter(Mandatory = false, ParameterSetName = "UserId", HelpMessage = "Forces user to change password during next login.")]
+        [Parameter(HelpMessage = "The first name for the user.", Mandatory = false)]
+        public string FirstName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag that indicating whether user must change password on next login.
+        /// </summary>
+        [Parameter(HelpMessage = "Forces user to change password during next login.", Mandatory = false)]
         public SwitchParameter ForceChangePasswordNextLogin { get; set; }
 
         /// <summary>
-        /// Gets or sets the required customer identifier.
+        /// Gets or sets the customer identifier.
         /// </summary>
-        [Parameter(Mandatory = true, ParameterSetName = "UserObject", Position = 0, HelpMessage = "The identifier for the customer.")]
-        [Parameter(Mandatory = true, ParameterSetName = "UserId", Position = 0, HelpMessage = "The identifier for the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [Parameter(HelpMessage = "The identifier for the customer.", Mandatory = true, ParameterSetName = "UserObject", Position = 0)]
+        [Parameter(HelpMessage = "The identifier for the customer.", Mandatory = true, ParameterSetName = "UserId", Position = 0)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the customer user being modified.
         /// </summary>
-        [Parameter(Mandatory = true, ParameterSetName = "UserObject", ValueFromPipeline = true, HelpMessage = "The customer user object to be modified.")]
+        [Parameter(HelpMessage = "The customer user object to be modified.", Mandatory = true, ParameterSetName = "UserObject", ValueFromPipeline = true)]
+        [ValidateNotNull]
         public PSCustomerUser InputObject { get; set; }
 
         /// <summary>
-        /// Sets the optional user first name.
+        /// Gets or sets the last name for the user.
         /// </summary>
-        [Parameter(Mandatory = false, ParameterSetName = "UserObject", HelpMessage = "User's first name.")]
-        [Parameter(Mandatory = false, ParameterSetName = "UserId", HelpMessage = "User's first name.")]
-        public string FirstName { get; set; }
-
-        /// <summary>
-        /// Sets the optional user last name.
-        /// </summary>
-        [Parameter(Mandatory = false, ParameterSetName = "UserObject", HelpMessage = "User's last name.")]
-        [Parameter(Mandatory = false, ParameterSetName = "UserId", HelpMessage = "User's last name.")]
+        [Parameter(HelpMessage = "The last name for the user.", Mandatory = false)]
+        [ValidateNotNullOrEmpty]
         public string LastName { get; set; }
 
         /// <summary>
-        /// Sets the optional user display name.
+        /// Gets or sets the password for the user.
         /// </summary>
-        [Parameter(Mandatory = false, ParameterSetName = "UserObject", HelpMessage = "User's new password.")]
-        [Parameter(Mandatory = false, ParameterSetName = "UserId", HelpMessage = "User's new password.")]
+        [Parameter(HelpMessage = "The password for the user.", Mandatory = false)]
+        [ValidateNotNull]
         public SecureString Password { get; set; }
 
         /// <summary>
         /// Gets or sets usage location, the location where user intends to use the license.
         /// </summary>
-        [Parameter(HelpMessage = "The usage location, the location where user intends to use the license.", ParameterSetName = "UserId", Mandatory = false)]
-        [Parameter(HelpMessage = "The usage location, the location where user intends to use the license.", ParameterSetName = "UserObject", Mandatory = false)]
+        [Parameter(HelpMessage = "The usage location, the location where user intends to use the license.", Mandatory = false)]
         [ValidateNotNullOrEmpty]
         public string UsageLocation { get; set; }
 
         /// <summary>
         /// Gets or sets the required user identifier.
         /// </summary>
-        [Parameter(Mandatory = true, ParameterSetName = "UserId", HelpMessage = "The identifier of the user.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [Parameter(HelpMessage = "The identifier of the user.", Mandatory = true, ParameterSetName = "UserId")]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string UserId { get; set; }
 
         /// <summary>
-        /// Gets or sets the optional user principal name.
+        /// Gets or sets the user principal name.
         /// </summary>
-        [Parameter(Mandatory = false, ParameterSetName = "UserObject", HelpMessage = "The user principal name.")]
-        [Parameter(Mandatory = false, ParameterSetName = "UserId", HelpMessage = "The user principal name.")]
+        [Parameter(HelpMessage = "The user principal name.", Mandatory = false)]
         public string UserPrincipalName { get; set; }
 
         /// <summary>
@@ -100,106 +91,72 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         public override void ExecuteCmdlet()
         {
             CustomerUser user;
+            PasswordProfile profile;
+
             UserId = (InputObject == null) ? UserId : InputObject.UserId;
 
-            // Get the current user information
-            user = GetUserById(CustomerId, UserId);
+            user = Partner.Customers[CustomerId].Users[UserId].GetAsync().GetAwaiter().GetResult();
 
-            try
+            if (user.Id == UserId)
             {
-                if (user.Id == UserId)
+                if (UserPrincipalName != null)
                 {
-                    // see what has changed for this user
-                    if (UserPrincipalName != null)
-                    {
-                        user.UserPrincipalName = UserPrincipalName;
-                    }
-
-                    if (FirstName != null)
-                    {
-                        user.FirstName = FirstName;
-                    }
-
-                    if (LastName != null)
-                    {
-                        user.LastName = LastName;
-                    }
-
-                    if (DisplayName != null)
-                    {
-                        user.DisplayName = DisplayName;
-                    }
-
-                    if (UsageLocation != null)
-                    {
-                        user.UsageLocation = UsageLocation;
-                    }
-
-                    PasswordProfile profile = null;
-                    if (Password != null && Password.Length > 0)
-                    {
-                        string stringPassword = SecureStringExtensions.ConvertToString(Password);
-                        profile = new PasswordProfile
-                        {
-                            Password = stringPassword,
-                            ForceChangePassword = ForceChangePasswordNextLogin.IsPresent ? true : false
-                        };
-                        user.PasswordProfile = profile;
-                    }
-                    else if (ForceChangePasswordNextLogin.IsPresent)
-                    {
-                        profile = new PasswordProfile
-                        {
-                            ForceChangePassword = ForceChangePasswordNextLogin.IsPresent ? true : false
-                        };
-                        user.PasswordProfile = profile;
-                    }
-
-                    if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.SetPartnerCustomerUserWhatIf, UserId)))
-                    {
-                        if (InputObject == null && string.IsNullOrEmpty(UserId))
-                        {
-                            throw new PSInvalidOperationException(Resources.InvalidSetCustomerUserIdentifierException);
-                        }
-
-                        CustomerUser result = Partner.Customers[CustomerId].Users[UserId].Patch(user);
-                        WriteObject(new PSCustomerUser(user), true);
-                    }
+                    user.UserPrincipalName = UserPrincipalName;
                 }
-            }
-            catch (PartnerException ex)
-            {
-                throw new PSPartnerException("An error was encountered when communicating with Partner Center.", ex);
-            }
-            finally
-            {
-                user = null;
-            }
-        }
 
-        /// <summary>
-        /// Gets a details for a specified user and customer from Partner Center.
-        /// </summary>
-        /// <param name="customerId">Identifier of the customer.</param>
-        /// <param name="userId">Identifier of the user.</param>
-        /// <exception cref="System.ArgumentException">
-        /// <paramref name="customerId"/> is empty or null.
-        /// </exception>
-        private CustomerUser GetUserById(string customerId, string userId)
-        {
-            CustomerUser user;
+                if (!string.IsNullOrEmpty(FirstName))
+                {
+                    user.FirstName = FirstName;
+                }
 
-            customerId.AssertNotEmpty(nameof(customerId));
-            userId.AssertNotEmpty(nameof(userId));
+                if (!string.IsNullOrEmpty(LastName))
+                {
+                    user.LastName = LastName;
+                }
 
-            try
-            {
-                user = Partner.Customers[customerId].Users[userId].Get();
-                return user;
-            }
-            finally
-            {
-                user = null;
+                if (!string.IsNullOrEmpty(DisplayName))
+                {
+                    user.DisplayName = DisplayName;
+                }
+
+                if (!string.IsNullOrEmpty(UsageLocation))
+                {
+                    user.UsageLocation = UsageLocation;
+                }
+
+                if (Password != null && Password.Length > 0)
+                {
+                    string stringPassword = SecureStringExtensions.ConvertToString(Password);
+
+                    profile = new PasswordProfile
+                    {
+                        Password = stringPassword,
+                        ForceChangePassword = ForceChangePasswordNextLogin.IsPresent
+                    };
+
+                    user.PasswordProfile = profile;
+                }
+                else if (ForceChangePasswordNextLogin.IsPresent)
+                {
+                    profile = new PasswordProfile
+                    {
+                        ForceChangePassword = ForceChangePasswordNextLogin.IsPresent
+                    };
+
+                    user.PasswordProfile = profile;
+                }
+
+                if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.SetPartnerCustomerUserWhatIf, UserId)))
+                {
+                    if (InputObject == null && string.IsNullOrEmpty(UserId))
+                    {
+                        throw new PSInvalidOperationException(Resources.InvalidSetCustomerUserIdentifierException);
+                    }
+
+                    user = Partner.Customers[CustomerId].Users[UserId].PatchAsync(user).GetAwaiter().GetResult();
+
+                    WriteObject(new PSCustomerUser(user), true);
+                }
             }
         }
     }

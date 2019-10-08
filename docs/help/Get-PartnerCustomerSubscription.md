@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerCustomerSubscription.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Get-PartnerCustomerSubscription
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerCustomerSubscription.md
 schema: 2.0.0
 ---
 
@@ -12,30 +14,25 @@ Gets a list or a single customer subscription.
 
 ## SYNTAX
 
-### Customer (Default)
-```
-Get-PartnerCustomerSubscription [<CommonParameters>]
-```
-
-### ByCustomerObject
-```
-Get-PartnerCustomerSubscription -InputObject <PSCustomer> [-OrderId <String>] [-MpnId <String>]
- [-SubscriptionId <String>] [<CommonParameters>]
-```
-
-### ByCustomer
-```
+### ByCustomer (Default)
+```powershell
 Get-PartnerCustomerSubscription -CustomerId <String> [-OrderId <String>] [-MpnId <String>]
  [-SubscriptionId <String>] [<CommonParameters>]
 ```
 
-### ByOrder
+### ByCustomerObject
+```powershell
+Get-PartnerCustomerSubscription -InputObject <PSCustomer> [-OrderId <String>] [-MpnId <String>]
+ [-SubscriptionId <String>] [<CommonParameters>]
 ```
+
+### ByOrder
+```powershell
 Get-PartnerCustomerSubscription -CustomerId <String> -OrderId <String> [<CommonParameters>]
 ```
 
 ### ByPartner
-```
+```powershell
 Get-PartnerCustomerSubscription -CustomerId <String> -MpnId <String> [<CommonParameters>]
 ```
 
@@ -95,7 +92,7 @@ The Microsoft Parnter Network identifier that identifies the partner.
 
 ```yaml
 Type: String
-Parameter Sets: ByCustomerObject, ByCustomer
+Parameter Sets: ByCustomer, ByCustomerObject
 Aliases:
 
 Required: False
@@ -122,7 +119,7 @@ The identifier corresponding to the order.
 
 ```yaml
 Type: String
-Parameter Sets: ByCustomerObject, ByCustomer
+Parameter Sets: ByCustomer, ByCustomerObject
 Aliases:
 
 Required: False
@@ -149,7 +146,7 @@ The subscription identifier used to scope the request.
 
 ```yaml
 Type: String
-Parameter Sets: ByCustomerObject, ByCustomer
+Parameter Sets: ByCustomer, ByCustomerObject
 Aliases:
 
 Required: False
@@ -160,7 +157,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

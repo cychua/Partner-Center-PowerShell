@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="SetPartnerSupportProfile.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -46,22 +43,15 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         {
             SupportProfile profile;
 
-            try
-            {
-                profile = Partner.Profiles.SupportProfile.Get();
+            profile = Partner.Profiles.SupportProfile.GetAsync().GetAwaiter().GetResult();
 
-                profile.Email = UpdateValue(SupportEmail, profile.Email);
-                profile.Telephone = UpdateValue(SupportPhoneNumber, profile.Telephone);
-                profile.Website = UpdateValue(SupportWebsite, profile.Website);
+            profile.Email = UpdateValue(SupportEmail, profile.Email);
+            profile.Telephone = UpdateValue(SupportPhoneNumber, profile.Telephone);
+            profile.Website = UpdateValue(SupportWebsite, profile.Website);
 
-                profile = Partner.Profiles.SupportProfile.Update(profile);
+            profile = Partner.Profiles.SupportProfile.UpdateAsync(profile).GetAwaiter().GetResult();
 
-                WriteObject(new PSSupportProfile(profile));
-            }
-            finally
-            {
-                profile = null;
-            }
+            WriteObject(new PSSupportProfile(profile));
         }
 
         private static string UpdateValue(string input, string output)

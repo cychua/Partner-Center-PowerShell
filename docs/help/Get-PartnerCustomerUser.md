@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerCustomerUser.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Get-PartnerCustomerUser
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerCustomerUser.md
 schema: 2.0.0
 ---
 
@@ -13,17 +15,17 @@ Gets a list of all customer users or a specified user for the tenant.
 ## SYNTAX
 
 ### ByCustomerId (Default)
-```
+```powershell
 Get-PartnerCustomerUser [-CustomerId] <String> [-ReturnDeletedUsers] [<CommonParameters>]
 ```
 
 ### ByUserId
-```
+```powershell
 Get-PartnerCustomerUser [-CustomerId] <String> -UserId <String> [<CommonParameters>]
 ```
 
 ### ByUpn
-```
+```powershell
 Get-PartnerCustomerUser [-CustomerId] <String> -UserPrincipalName <String> [<CommonParameters>]
 ```
 
@@ -116,7 +118,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -124,7 +126,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Microsoft.Store.PartnerCenter.PowerShell.Models.CustomerUsers.PSCustomerUser
+### Microsoft.Store.PartnerCenter.PowerShell.Models.Users.PSCustomerUser
 
 ## NOTES
 

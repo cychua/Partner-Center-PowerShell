@@ -1,12 +1,9 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerIndirectReseller.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Relationships
 {
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Relationships;
 
     /// <summary>
@@ -64,7 +61,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Relationships
         public string State { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="PartnerRelationship" /> to an instance of <see cref="PSPartnerRelationship" />. 
+        /// Additional operations to be performed when cloning an instance of <see cref="PartnerRelationship" /> to an instance of <see cref="PSPartnerRelationship" />. 
         /// </summary>
         /// <param name="relationship">The relationship being cloned.</param>
         private void CloneAdditionalOperations(PartnerRelationship relationship)

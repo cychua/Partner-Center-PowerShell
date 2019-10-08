@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerServiceRequestTopic.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -29,35 +26,23 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// <summary>
         /// Executes the operations associated with the cmdlet.
         /// </summary>
-        public override void ExecuteCmdlet() { GetSupportTopics(SupportTopicId); }
-
-        /// <summary>
-        /// Gets the specified support topic.
-        /// </summary>
-        /// <param name="topicId">Identifier for the customer.</param>
-        private void GetSupportTopics(string topicId)
+        public override void ExecuteCmdlet()
         {
             ResourceCollection<SupportTopic> topics;
             IEnumerable<SupportTopic> results;
 
-            try
-            {
-                topics = Partner.ServiceRequests.SupportTopics.Get();
+            topics = Partner.ServiceRequests.SupportTopics.GetAsync().GetAwaiter().GetResult();
 
-                if (topics.TotalCount > 0)
+            if (topics.TotalCount > 0)
+            {
+                results = topics.Items;
+
+                if (!string.IsNullOrEmpty(SupportTopicId))
                 {
-                    results = topics.Items;
-
-                    if (!string.IsNullOrEmpty(topicId))
-                        results = results.Where(t => t.Id.ToString(CultureInfo.CurrentCulture) == topicId);
-
-                    WriteObject(results.Select(t => new PSSupportTopic(t)), true);
+                    results = results.Where(t => t.Id.ToString(CultureInfo.CurrentCulture) == SupportTopicId);
                 }
-            }
-            finally
-            {
-                topics = null;
-                results = null;
+
+                WriteObject(results.Select(t => new PSSupportTopic(t)), true);
             }
         }
     }

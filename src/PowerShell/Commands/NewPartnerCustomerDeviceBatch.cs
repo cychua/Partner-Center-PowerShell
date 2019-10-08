@@ -1,20 +1,21 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="NewPartnerCustomerDeviceBatch.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
+    using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using Models.DevicesDeployment;
+    using PartnerCenter.Models;
     using PartnerCenter.Models.DevicesDeployment;
     using Properties;
 
-    [Cmdlet(VerbsCommon.New, "PartnerCustomerDeviceBatch", SupportsShouldProcess = true), OutputType(typeof(string))]
+    [Cmdlet(VerbsCommon.New, "PartnerCustomerDeviceBatch", SupportsShouldProcess = true), OutputType(typeof(PSBatchUploadDetails))]
     public class NewPartnerCustomerDeviceBatch : PartnerPSCmdlet
     {
         /// <summary>
@@ -28,7 +29,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// Gets or sets the customer identifier.
         /// </summary>
         [Parameter(HelpMessage = "The identifier for the customer.", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -44,36 +45,61 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         public override void ExecuteCmdlet()
         {
             DeviceBatchCreationRequest request;
-            string deviceBatch;
+            ResourceCollection<DeviceBatch> batches;
+            IEnumerable<Device> devices;
+            BatchUploadDetails status;
+            string location;
 
-            try
+            if (!ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.NewPartnerCustomerDeviceBatchWhatIf, BatchId)))
             {
-                if (!ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.NewPartnerCustomerDeviceBatchWhatIf, BatchId)))
-                {
-                    return;
-                }
+                return;
+            }
 
+            batches = Partner.Customers[CustomerId].DeviceBatches.GetAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+            devices = Devices.Select(d => new Device
+            {
+                HardwareHash = d.HardwareHash,
+                ModelName = d.ModelName,
+                OemManufacturerName = d.OemManufacturerName,
+                Policies = d.Policies,
+                ProductKey = d.ProductKey,
+                SerialNumber = d.SerialNumber
+            });
+
+            if (batches.Items.SingleOrDefault(b => b.Id.Equals(BatchId, StringComparison.InvariantCultureIgnoreCase)) != null)
+            {
+                location = Partner.Customers[CustomerId].DeviceBatches[BatchId].Devices.CreateAsync(Devices.Select(d => new Device
+                {
+                    HardwareHash = d.HardwareHash,
+                    ModelName = d.ModelName,
+                    OemManufacturerName = d.OemManufacturerName,
+                    Policies = d.Policies,
+                    ProductKey = d.ProductKey,
+                    SerialNumber = d.SerialNumber
+                })).GetAwaiter().GetResult();
+            }
+            else
+            {
                 request = new DeviceBatchCreationRequest
                 {
                     BatchId = BatchId,
-                    Devices = Devices.Select(d => new Device
-                    {
-                        HardwareHash = d.HardwareHash,
-                        ModelName = d.ModelName,
-                        OemManufacturerName = d.OemManufacturerName,
-                        ProductKey = d.ProductKey,
-                        SerialNumber = d.SerialNumber
-                    })
+                    Devices = devices
                 };
 
-                deviceBatch = Partner.Customers[CustomerId].DeviceBatches.Create(new DeviceBatchCreationRequest());
+                location = Partner.Customers[CustomerId].DeviceBatches.CreateAsync(request).GetAwaiter().GetResult();
+            }
 
-                WriteObject(deviceBatch);
-            }
-            finally
+            status = Partner.Customers[CustomerId].BatchUploadStatus.ById(location.Split('/')[4]).GetAsync().GetAwaiter().GetResult();
+
+            while (status.Status == DeviceUploadStatusType.Processing || status.Status == DeviceUploadStatusType.Queued)
             {
-                request = null;
+                Thread.Sleep(5000);
+
+                status = Partner.Customers[CustomerId].BatchUploadStatus.ById(location.Split('/')[4]).GetAsync().GetAwaiter().GetResult();
             }
+
+            WriteObject(new PSBatchUploadDetails(status));
         }
     }
 }

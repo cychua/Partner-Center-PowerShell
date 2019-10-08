@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="NewPartnerCustomer.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -10,16 +7,28 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Globalization;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Authentication;
+    using Models.Authentication;
     using Models.Customers;
+    using PartnerCenter.Exceptions;
     using PartnerCenter.Models;
-    using PartnerCenter.Models.Customers;
     using Properties;
     using Validations;
 
     [Cmdlet(VerbsCommon.New, "PartnerCustomer", SupportsShouldProcess = true), OutputType(typeof(PSCustomer))]
     public class NewPartnerCustomer : PartnerPSCmdlet
     {
+        /// <summary>
+        /// The country code for the United States.
+        /// </summary>
+        private const string UnitedStatesCountryCode = "US";
+
+        /// <summary>
+        /// Gets or sets the associated partner identifier.
+        /// </summary>
+        [Parameter(HelpMessage = "The associated partner identifier. Used if creating a customer for an indirect reseller.", Mandatory = false)]
+        [ValidateNotNullOrEmpty]
+        public string AssociatedPartnerId { get; set; }
+
         /// <summary>
         /// Gets or sets the first line of the billing address.
         /// </summary>
@@ -70,30 +79,30 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         public string BillingAddressState { get; set; }
 
         /// <summary>
-        /// Gets or sets the email address of the primary contact at the customer.
+        /// Gets or sets the email address of the primary contact of the customer.
         /// </summary>
-        [Parameter(HelpMessage = "The email address of the primary contact at the customer.", Mandatory = false)]
+        [Parameter(HelpMessage = "The email address of the primary contact of the customer.", Mandatory = false)]
         [ValidatePattern(@"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$", Options = RegexOptions.IgnoreCase)]
         public string ContactEmail { get; set; }
 
         /// <summary>
-        /// Gets or sets the first name of the primary contact at the customer.
+        /// Gets or sets the first name of the primary contact of the customer.
         /// </summary>
-        [Parameter(HelpMessage = "The first name of the primary contact at the customer.", Mandatory = false)]
+        [Parameter(HelpMessage = "The first name of the primary contact of the customer.", Mandatory = false)]
         [ValidateNotNullOrEmpty]
         public string ContactFirstName { get; set; }
 
         /// <summary>
-        /// Gets or sets the last name of the primary contact at the customer.
+        /// Gets or sets the last name of the primary contact of the customer.
         /// </summary>
-        [Parameter(HelpMessage = "The last name of the primary contact at the customer.", Mandatory = false)]
+        [Parameter(HelpMessage = "The last name of the primary contact of the customer.", Mandatory = false)]
         [ValidateNotNullOrEmpty]
         public string ContactLastName { get; set; }
 
         /// <summary>
-        /// 
+        /// Gets or sets the phone number of the primary contact of the customer.
         /// </summary>
-        [Parameter(HelpMessage = "The phone number of the primary contact at the customer.", Mandatory = false)]
+        [Parameter(HelpMessage = "The phone number of the primary contact of the customer.", Mandatory = false)]
         [ValidateNotNullOrEmpty]
         public string ContactPhoneNumber { get; set; }
 
@@ -126,21 +135,72 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         public string Name { get; set; }
 
         /// <summary>
+        /// Gets or sets a flag that indicates whether the additional client side validation should be disabled.
+        /// </summary>
+        [Parameter(HelpMessage = "A flag that indicates whether the additional client side validation should be disabled.", Mandatory = false)]
+        public SwitchParameter DisableValidation { get; set; }
+
+        /// <summary>
         /// Executes the operations associated with the cmdlet.
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            Customer customer;
+            PartnerCenter.Models.Customers.Customer customer;
             IValidator<Address> validator;
             string country;
             string culture;
             string region;
 
-            try
+            if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.NewPartnerCustomerWhatIf, Name)))
             {
-                if (ShouldProcess(string.Format(CultureInfo.CurrentCulture, Resources.NewPartnerCustomerWhatIf, Name)))
+
+                country = (string.IsNullOrEmpty(BillingAddressCountry)) ? PartnerSession.Instance.Context.CountryCode : BillingAddressCountry;
+                culture = (string.IsNullOrEmpty(Culture)) ? PartnerSession.Instance.Context.Locale : Culture;
+
+                if (string.IsNullOrEmpty(BillingAddressRegion))
                 {
-                    if (Partner.Domains.ByDomain(Domain).Exists())
+                    region = null;
+                }
+                else
+                {
+                    region = BillingAddressRegion.Equals(UnitedStatesCountryCode, StringComparison.InvariantCultureIgnoreCase) ? string.Empty : BillingAddressRegion;
+                }
+
+                customer = new PartnerCenter.Models.Customers.Customer
+                {
+                    AssociatedPartnerId = AssociatedPartnerId,
+                    BillingProfile = new PartnerCenter.Models.Customers.CustomerBillingProfile
+                    {
+                        CompanyName = Name,
+                        Culture = culture,
+                        DefaultAddress = new Address
+                        {
+                            AddressLine1 = BillingAddressLine1,
+                            AddressLine2 = BillingAddressLine2,
+                            City = BillingAddressCity,
+                            Country = country,
+                            FirstName = ContactFirstName,
+                            LastName = ContactLastName,
+                            PhoneNumber = ContactPhoneNumber,
+                            PostalCode = BillingAddressPostalCode,
+                            Region = region,
+                            State = BillingAddressState
+                        },
+                        Email = ContactEmail,
+                        FirstName = ContactFirstName,
+                        Language = Language,
+                        LastName = ContactLastName
+                    },
+                    CompanyProfile = new PartnerCenter.Models.Customers.CustomerCompanyProfile
+                    {
+                        CompanyName = Name,
+                        Domain = Domain
+                    }
+                };
+
+                if (!DisableValidation.ToBool())
+                {
+                    if (Partner.Domains.ByDomain(Domain).ExistsAsync().GetAwaiter().GetResult())
                     {
                         throw new PSInvalidOperationException(
                             string.Format(
@@ -149,63 +209,15 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
                                 Domain));
                     }
 
-                    country = (string.IsNullOrEmpty(BillingAddressCountry)) ? PartnerProfile.Instance.Context.CountryCode : BillingAddressCountry;
-                    culture = (string.IsNullOrEmpty(Culture)) ? PartnerProfile.Instance.Context.Locale : Culture;
-
-                    if (string.IsNullOrEmpty(BillingAddressRegion))
-                    {
-                        region = null;
-                    }
-                    else
-                    {
-                        region = BillingAddressRegion.Equals("US", StringComparison.InvariantCultureIgnoreCase) ? string.Empty : BillingAddressRegion;
-                    }
-
-                    customer = new Customer
-                    {
-                        BillingProfile = new CustomerBillingProfile
-                        {
-                            CompanyName = Name,
-                            Culture = culture,
-                            DefaultAddress = new Address
-                            {
-                                AddressLine1 = BillingAddressLine1,
-                                AddressLine2 = BillingAddressLine2,
-                                City = BillingAddressCity,
-                                Country = country,
-                                FirstName = ContactFirstName,
-                                LastName = ContactLastName,
-                                PhoneNumber = ContactPhoneNumber,
-                                PostalCode = BillingAddressPostalCode,
-                                Region = region,
-                                State = BillingAddressState
-                            },
-                            Email = ContactEmail,
-                            FirstName = ContactFirstName,
-                            Language = Language,
-                            LastName = ContactLastName
-                        },
-                        CompanyProfile = new CustomerCompanyProfile
-                        {
-                            CompanyName = Name,
-                            Domain = Domain
-                        }
-                    };
-
                     validator = new AddressValidator(Partner);
 
-                    if (validator.IsValid(customer.BillingProfile.DefaultAddress))
+                    if (!validator.IsValid(customer.BillingProfile.DefaultAddress, d => WriteDebug(d)))
                     {
-                        customer = Partner.Customers.Create(customer);
-
-                        WriteObject(customer);
+                        throw new PartnerException("The address for the customer is not valid.");
                     }
                 }
-            }
-            finally
-            {
-                customer = null;
-                validator = null;
+
+                WriteObject(Partner.Customers.CreateAsync(customer).GetAwaiter().GetResult());
             }
         }
     }

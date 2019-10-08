@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/New-PartnerCustomerAgreement.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/New-PartnerCustomerAgreement
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/New-PartnerCustomerAgreement.md
 schema: 2.0.0
 ---
 
@@ -12,10 +14,10 @@ Confirms the customer acceptance of the Microsoft Cloud agreement.
 
 ## SYNTAX
 
-```
-New-PartnerCustomerAgreement -AgreementType <AgreementType> -ContactEmail <String> -ContactFirstName <String>
- -ContactLastName <String> [-ContactPhoneNumber <String>] -CustomerId <String> -TemplateId <String>
- [<CommonParameters>]
+```powershell
+New-PartnerCustomerAgreement -AgreementType <String> -ContactEmail <String> -ContactFirstName <String>
+ -ContactLastName <String> [-ContactPhoneNumber <String>] -CustomerId <String> [-DateAgreed <DateTime>]
+ -TemplateId <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,10 +38,10 @@ Confirms the customer acceptance of the Microsoft Cloud agreement.
 The type of agreement being accepted.
 
 ```yaml
-Type: AgreementType
+Type: String
 Parameter Sets: (All)
 Aliases:
-Accepted values: MicrosoftCloudAgreement
+Accepted values: MicrosoftCloudAgreement, MicrosoftCustomerAgreement
 
 Required: True
 Position: Named
@@ -49,7 +51,7 @@ Accept wildcard characters: False
 ```
 
 ### -ContactEmail
-The email address of the contact at the customer.
+The email address of the primary contact of the customer.
 
 ```yaml
 Type: String
@@ -64,7 +66,7 @@ Accept wildcard characters: False
 ```
 
 ### -ContactFirstName
-The first name of the contact at the customer.
+The first name of the primary contact of the customer.
 
 ```yaml
 Type: String
@@ -79,7 +81,7 @@ Accept wildcard characters: False
 ```
 
 ### -ContactLastName
-The last name of the contact at the customer.
+The last name of the primary contact of the customer.
 
 ```yaml
 Type: String
@@ -94,7 +96,7 @@ Accept wildcard characters: False
 ```
 
 ### -ContactPhoneNumber
-The phone number of the contact at the customer.
+The phone number of the primary contact of the customer.
 
 ```yaml
 Type: String
@@ -123,6 +125,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -DateAgreed
+The date the agreement was signed.
+
+```yaml
+Type: DateTime
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -TemplateId
 The identifier for the template.
 
@@ -139,7 +156,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

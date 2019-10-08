@@ -1,14 +1,10 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerSupportProfile.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System.Management.Automation;
     using Models.Partners;
-    using PartnerCenter.Models.Partners;
 
     /// <summary>
     /// Gets the partner support profile from Partner Center.
@@ -21,18 +17,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            SupportProfile profile;
-
-            try
-            {
-                profile = Partner.Profiles.SupportProfile.Get();
-
-                WriteObject(new PSSupportProfile(profile));
-            }
-            finally
-            {
-                profile = null;
-            }
+            WriteObject(new PSSupportProfile(Partner.Profiles.SupportProfile.GetAsync().GetAwaiter().GetResult()));
         }
     }
 }

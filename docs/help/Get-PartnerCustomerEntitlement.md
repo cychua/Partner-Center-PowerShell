@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerCustomerEntitlement.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Get-PartnerCustomerEntitlement
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerCustomerEntitlement.md
 schema: 2.0.0
 ---
 
@@ -12,8 +14,8 @@ Gets a collection of entitlements.
 
 ## SYNTAX
 
-```
-Get-PartnerCustomerEntitlement -CustomerId <String> [-OrderId <String>] [<CommonParameters>]
+```powershell
+Get-PartnerCustomerEntitlement -CustomerId <String> [-ShowExpiry] [-OrderId <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,7 +25,7 @@ An entitlement represents the customer's right to use a product (service). It sh
 
 ### Example 1
 ```powershell
-PS C:\> Get-PartnerCustomerEntitlements -CustomerId c4f6bf3c-60de-432e-a3ec-20bcc5b26ec2
+PS C:\> Get-PartnerCustomerEntitlement -CustomerId c4f6bf3c-60de-432e-a3ec-20bcc5b26ec2
 ```
 
 Return customer entitlements based on customer identifier.
@@ -60,8 +62,23 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ShowExpiry
+A flag to indicate if the expiry date is required to be returned along with the entitlement (if applicable).
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -74,5 +91,3 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
-
-<https://msdn.microsoft.com/en-us/library/partnercenter/mt774567.aspx>

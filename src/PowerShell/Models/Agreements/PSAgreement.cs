@@ -1,13 +1,10 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSAgreement.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Agreements
 {
     using System;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Agreements;
 
     /// <summary>
@@ -53,7 +50,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Agreements
         /// <summary>
         ///  Gets or sets the agreement type.
         /// </summary>
-        public AgreementType Type { get; set; }
+        public string Type { get; set; }
 
         /// <summary>
         /// Gets or sets the partner's user identifier.

@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerCustomerOrder.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -10,7 +7,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Offers;
     using PartnerCenter.Models.Orders;
     using PartnerCenter.PowerShell.Models.Orders;
@@ -22,13 +19,26 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     public class GetPartnerCustomerOrder : PartnerPSCmdlet
     {
         /// <summary>
+        /// Gets or sets the optional cilling cycle identifier.
+        /// </summary>
+        [Parameter(ParameterSetName = "ByBillingCycle", Mandatory = true, HelpMessage = "Indicates the type of billing cycle.")]
+        [ValidateSet(nameof(BillingCycleType.Annual), nameof(BillingCycleType.Monthly), nameof(BillingCycleType.None), nameof(BillingCycleType.OneTime), nameof(BillingCycleType.Unknown))]
+        public BillingCycleType? BillingCycle { get; set; }
+
+        /// <summary>
         /// Gets or sets the required customer identifier.
         /// </summary>
         [Parameter(ParameterSetName = "ByCustomerId", Mandatory = true, HelpMessage = "The identifier for the customer.")]
         [Parameter(ParameterSetName = "ByOrderId", Mandatory = true, HelpMessage = "The identifier for the customer.")]
         [Parameter(ParameterSetName = "ByBillingCycle", Mandatory = true, HelpMessage = "The identifier for the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag indicating whether to include pricing details in the order information.
+        /// </summary>
+        [Parameter(HelpMessage = "A flag indicating whether to include pricing details in the order information.", Mandatory = false)]
+        public SwitchParameter IncludePrice { get; set; }
 
         /// <summary>
         /// Gets or sets the optional order identifier.
@@ -39,13 +49,6 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </remarks>
         [Parameter(ParameterSetName = "ByOrderId", Mandatory = true, HelpMessage = "The identifier for the order.")]
         public string OrderId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the optional cilling cycle identifier.
-        /// </summary>
-        [Parameter(ParameterSetName = "ByBillingCycle", Mandatory = true, HelpMessage = "Indicates the type of billing cycle.")]
-        [ValidateSet(nameof(BillingCycleType.Annual), nameof(BillingCycleType.Monthly), nameof(BillingCycleType.None), nameof(BillingCycleType.OneTime), nameof(BillingCycleType.Unknown))]
-        public BillingCycleType? BillingCycle { get; set; }
 
         /// <summary>
         /// Executes the operations associated with the cmdlet.
@@ -75,20 +78,14 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         private void GetCustomerOrder(string customerId, string orderId)
         {
             Order order;
+            bool includePrice = IncludePrice.ToBool();
 
             customerId.AssertNotEmpty(nameof(customerId));
             orderId.AssertNotEmpty(nameof(orderId));
 
-            try
-            {
-                order = Partner.Customers.ById(customerId).Orders.ById(orderId).Get();
+            order = Partner.Customers.ById(customerId).Orders.ById(orderId).GetAsync(includePrice).GetAwaiter().GetResult();
 
-                WriteObject(new PSOrder(order));
-            }
-            finally
-            {
-                order = null;
-            }
+            WriteObject(new PSOrder(order));
         }
 
         /// <summary>
@@ -102,26 +99,20 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         private void GetCustomerOrders(string customerId, BillingCycleType? billingCycle)
         {
             IEnumerable<Order> orders;
+            bool includePrice = IncludePrice.ToBool();
 
             customerId.AssertNotEmpty(nameof(customerId));
 
-            try
+            if (billingCycle.HasValue)
             {
-                if (billingCycle.HasValue)
-                {
-                    orders = Partner.Customers.ById(customerId).Orders.ByBillingCycleType(billingCycle.Value).Get().Items;
-                }
-                else
-                {
-                    orders = Partner.Customers.ById(customerId).Orders.Get().Items;
-                }
+                orders = Partner.Customers.ById(customerId).Orders.ByBillingCycleType(billingCycle.Value).GetAsync(includePrice).GetAwaiter().GetResult().Items;
+            }
+            else
+            {
+                orders = Partner.Customers.ById(customerId).Orders.GetAsync(includePrice).GetAwaiter().GetResult().Items;
+            }
 
-                WriteObject(orders.Select(o => new PSOrder(o)), true);
-            }
-            finally
-            {
-                orders = null;
-            }
+            WriteObject(orders.Select(o => new PSOrder(o)), true);
         }
     }
 }

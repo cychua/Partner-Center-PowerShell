@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerCustomerSubscriptionUtilization.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Get-PartnerCustomerSubscriptionUtilization
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerCustomerSubscriptionUtilization.md
 schema: 2.0.0
 ---
 
@@ -12,9 +14,9 @@ Gets the utilization of a customer's Azure subscription.
 
 ## SYNTAX
 
-```
+```powershell
 Get-PartnerCustomerSubscriptionUtilization -CustomerId <String> [-EndDate <DateTimeOffset>]
- [-Granularity <AzureUtilizationGranularity>] [-ShowDetails] -StartDate <DateTimeOffset>
+ [-Granularity <AzureUtilizationGranularity>] [-PageSize <Int32>] [-ShowDetails] -StartDate <DateTimeOffset>
  -SubscriptionId <String> [<CommonParameters>]
 ```
 
@@ -26,10 +28,18 @@ Gets the utilization of a customer's Azure subscription with a daily or hourly g
 ### Example 1
 
 ```powershell
-PS C:\> Get-PartnerCustomerSubscriptionUtilization -CustomerId <Customer ID> -SubscriptionId <Subscription ID> -StartDate (Get-Date).AddDays(-2).ToUniversalTime() -Granularity Hourly -ShowDetails
+PS C:\> Get-PartnerCustomerSubscriptionUtilization -CustomerId <Customer ID> -SubscriptionId <Subscription ID> -StartDate [System.DateTimeOffset]::Now.AddDays(-1) -Granularity Hourly -ShowDetails
 ```
 
-Gets a customer's Azure utilization for a specific subscription from a start date (specified in UTC) with an hourly granularity.
+Gets a customer's Azure utilization for a specific subscription from a start date (specified in UTC) with a hourly granularity.
+
+### Example 2
+
+```powershell
+PS C:\> Get-PartnerCustomerSubscriptionUtilization -CustomerId <Customer ID> -SubscriptionId <Subscription ID> -StartDate [System.DateTimeOffset]::Now.AddDays(-1) -EndDate [System.DateTimeOffset]::Now -Granularity Daily -ShowDetails
+```
+
+Gets a customer's Azure utilization for a specific subscription from a start date (specified in UTC) with a daily granularity.
 
 ## PARAMETERS
 
@@ -74,6 +84,21 @@ Type: AzureUtilizationGranularity
 Parameter Sets: (All)
 Aliases:
 Accepted values: Daily, Hourly
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PageSize
+The number of records returned with a single request to the partner service.
+
+```yaml
+Type: Int32
+Parameter Sets: (All)
+Aliases:
 
 Required: False
 Position: Named
@@ -128,7 +153,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

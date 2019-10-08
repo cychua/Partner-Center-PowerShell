@@ -1,14 +1,11 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSConfigurationPolicy.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// --------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models
 {
     using System;
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.DevicesDeployment;
 
     public sealed class PSConfigurationPolicy
@@ -28,46 +25,53 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models
             this.CopyFrom(configurationPolicy, CloneAdditionalOperations);
         }
 
-        //
-        // Summary:
-        //     Gets or sets the policy unique identifier.
-        public string PolicyId { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the name associated with the policy.
-        public string Name { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the category of the policy.
+        /// <summary>
+        /// Gets or sets the category of the policy.
+        /// </summary>
         public PolicyCategory Category { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the description for a policy.
-        public string Description { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the number of devices assigned to a policy.
-        public int DevicesAssignedCount { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the settings for a policy.
-        public IEnumerable<PolicySettingsType> PolicySettings { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the date the policy was created.
+
+        /// <summary>
+        /// Gets or sets the date the policy was created.
+        /// </summary>
         public DateTime CreatedDate { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the date the policy was modified.
+
+        /// <summary>
+        /// Gets or sets the description for the policy.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of devices assigned to the policy.
+        /// </summary>
+        public int DevicesAssignedCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date the policy was modified.
+        /// </summary>
         public DateTime LastModifiedDate { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="ConfigurationPolicy" /> to an instance of <see cref="PSConfigurationPolicy" />. 
+        /// Gets or sets the name associated with the policy.
         /// </summary>
-        /// <param name="customer">The customer being cloned.</param>
-        private void CloneAdditionalOperations(ConfigurationPolicy configurationPolicy)
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the policy unique identifier.
+        /// </summary>
+        public string PolicyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the settings for a policy.
+        /// </summary>
+        public IEnumerable<PolicySettingsTypes> PolicySettings { get; set; }
+
+        /// <summary>
+        /// Additional operations to be performed when cloning an instance of <see cref="ConfigurationPolicy" /> to an instance of <see cref="PSConfigurationPolicy" />. 
+        /// </summary>
+        /// <param name="item">The item being cloned.</param>
+        private void CloneAdditionalOperations(ConfigurationPolicy item)
         {
-            PolicyId = configurationPolicy.Id;
+            PolicyId = item.Id;
         }
     }
 }

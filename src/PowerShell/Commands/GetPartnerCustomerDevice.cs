@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerCustomerDevice.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -22,17 +19,13 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// <summary>
         /// Gets or sets the required customer identifier.
         /// </summary>
-        /// <remarks>
-        /// </remarks>
-        [Parameter(Mandatory = true, Position =0, HelpMessage = "Identifier for the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [Parameter(Mandatory = true, Position = 0, HelpMessage = "Identifier for the customer.")]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the batch identifier.
         /// </summary>
-        /// <remarks>
-        /// </remarks>
         [Parameter(Mandatory = true, HelpMessage = "Identifier for the device batch.")]
         [ValidateNotNullOrEmpty]
         public string BatchId { get; set; }
@@ -42,18 +35,8 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            IEnumerable<Device> devices;
-
-            try
-            {
-                devices = Partner.Customers[CustomerId].DeviceBatches[BatchId].Devices.Get().Items;
-                WriteObject(devices.Select(d => new PSDevice(d)), true);
-            }
-            finally
-            {
-                devices = null;
-            }
+            IEnumerable<Device> devices = Partner.Customers[CustomerId].DeviceBatches[BatchId].Devices.GetAsync().GetAwaiter().GetResult().Items;
+            WriteObject(devices.Select(d => new PSDevice(d)), true);
         }
-
     }
 }

@@ -1,7 +1,9 @@
 ---
+content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerProductSku.md
 external help file: Microsoft.Store.PartnerCenter.PowerShell.dll-Help.xml
 Module Name: PartnerCenter
-online version:
+online version: https://docs.microsoft.com/powershell/module/partnercenter/Get-PartnerProductSku
+original_content_git_url: https://github.com/Microsoft/Partner-Center-PowerShell/blob/master/docs/help/Get-PartnerProductSku.md
 schema: 2.0.0
 ---
 
@@ -13,17 +15,17 @@ Gets the list of SKUs for a product.
 ## SYNTAX
 
 ### ByProductId (Default)
-```
+```powershell
 Get-PartnerProductSku [-CountryCode <String>] -ProductId <String> [<CommonParameters>]
 ```
 
 ### BySkuId
-```
+```powershell
 Get-PartnerProductSku [-CountryCode <String>] -ProductId <String> -SkuId <String> [<CommonParameters>]
 ```
 
 ### BySegment
-```
+```powershell
 Get-PartnerProductSku [-CountryCode <String>] -ProductId <String> [-Segment <String>] [<CommonParameters>]
 ```
 
@@ -103,7 +105,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

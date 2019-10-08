@@ -1,13 +1,10 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSLicenseUpdate.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Licenses
 {
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Licenses;
 
     public sealed class PSLicenseUpdate
@@ -18,7 +15,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Licenses
         public PSLicenseUpdate()
         {
             LicensesToAssign = new List<PSLicenseAssignment>();
-            LicensesToRemove = new List<string>(); 
+            LicensesToRemove = new List<string>();
         }
 
         /// <summary>
@@ -28,7 +25,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Licenses
         public PSLicenseUpdate(LicenseUpdate licenseUpdate)
         {
             LicensesToAssign = new List<PSLicenseAssignment>();
-            LicensesToRemove = new List<string>(); 
+            LicensesToRemove = new List<string>();
 
             this.CopyFrom(licenseUpdate);
         }

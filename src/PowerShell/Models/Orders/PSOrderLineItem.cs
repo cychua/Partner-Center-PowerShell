@@ -1,14 +1,11 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSOrderLineItem.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Orders
 {
     using System.Collections;
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Orders;
 
     /// <summary>
@@ -63,6 +60,14 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Orders
         public string ParentSubscriptionId { get; set; }
 
         /// <summary>
+        /// Gets or sets the pricing for the order.
+        /// </summary>
+        /// <remarks>
+        /// This information will not be returned unless explicitly requested. 
+        /// </remarks>
+        public Pricing Pricing { get; set; }
+
+        /// <summary>
         /// Gets the provisioning context for the offer.
         /// </summary>
         public Hashtable ProvisioningContext { get; }
@@ -78,7 +83,17 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Orders
         public string SubscriptionId { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="OrderLineItem" /> to an instance of <see cref="PSOrderLineItem" />. 
+        /// Gets the term duration.
+        /// </summary>
+        public string TermDuration { get; private set; }
+
+        /// <summary>
+        /// Gets the transaction type.
+        /// </summary>
+        public string TransactionType { get; private set; }
+
+        /// <summary>
+        /// Additional operations to be performed when cloning an instance of <see cref="OrderLineItem" /> to an instance of <see cref="PSOrderLineItem" />. 
         /// </summary>
         /// <param name="lineItem">An instance of the <see cref="OrderLineItem" /> class that will serve as base for this instance.</param>
         private void CloneAdditionalOperations(OrderLineItem lineItem)

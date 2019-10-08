@@ -1,19 +1,12 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="GetPartnerCustomerAgreement.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
-    using System;
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
     using Models.Agreements;
-    using PartnerCenter.Exceptions;
-    using PartnerCenter.Models;
-    using PartnerCenter.Models.Agreements;
 
     /// <summary>
     /// Gets a list of agreements the customer in place.
@@ -22,10 +15,17 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     public class GetPartnerCustomerAgreement : PartnerPSCmdlet
     {
         /// <summary>
+        /// Gets or sets the agreement type. 
+        /// </summary>
+        [Parameter(HelpMessage = "The type of agreement of being requested.", Mandatory = false)]
+        [ValidateSet("MicrosoftCloudAgreement", "MicrosoftCustomerAgreement")]
+        public string AgreementType { get; set; }
+
+        /// <summary>
         /// Gets or sets the required customer identifier.
         /// </summary>
         [Parameter(HelpMessage = "The identifier for the customer.", Mandatory = true)]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
@@ -33,30 +33,13 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         public override void ExecuteCmdlet()
         {
-            ResourceCollection<Agreement> agreements;
-
-            try
+            if (string.IsNullOrEmpty(AgreementType))
             {
-
-                agreements = Partner.Customers[CustomerId].Agreements.Get();
-
-                WriteObject(agreements.Items.Select(a => new PSAgreement(a)), true);
+                WriteObject(Partner.Customers[CustomerId].Agreements.GetAsync().GetAwaiter().GetResult().Items.Select(a => new PSAgreement(a)), true);
             }
-            catch (PartnerException ex)
+            else
             {
-                if (ex.ServiceErrorPayload != null)
-                {
-                    if (ex.ServiceErrorPayload.ErrorCode.Equals("600009", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        return;
-                    }
-                }
-
-                throw;
-            }
-            finally
-            {
-                agreements = null;
+                WriteObject(Partner.Customers[CustomerId].Agreements.ByAgreementType(AgreementType).GetAsync().GetAwaiter().GetResult().Items.Select(a => new PSAgreement(a)), true);
             }
         }
     }

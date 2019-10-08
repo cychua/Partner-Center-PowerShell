@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="RemovePartnerCustomerUser.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
@@ -12,10 +9,8 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
     using System.Linq;
     using System.Management.Automation;
     using System.Text.RegularExpressions;
-    using Common;
-    using Exceptions;
+    using Extensions;
     using PartnerCenter.Enumerators;
-    using PartnerCenter.Exceptions;
     using PartnerCenter.Models;
     using PartnerCenter.Models.Users;
     using Properties;
@@ -31,14 +26,14 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         [Parameter(ParameterSetName = "ByUserId", Mandatory = true, Position = 0, HelpMessage = "The identifier for the customer.")]
         [Parameter(ParameterSetName = "ByUpn", Mandatory = true, Position = 0, HelpMessage = "The identifier for the customer.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the optional user identifier.
         /// </summary>
         [Parameter(ParameterSetName = "ByUserId", Mandatory = true, HelpMessage = "The identifier for the user.")]
-        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled)]
+        [ValidatePattern(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", Options = RegexOptions.Compiled | RegexOptions.IgnoreCase)]
         public string UserId { get; set; }
 
         /// <summary>
@@ -72,29 +67,16 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         /// </summary>
         /// <param name="customerId">Identifier of the customer.</param>
         /// <param name="userId">Identifier of the user.</param>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// <paramref name="customerId"/> is empty or null.
         /// </exception>
         private void RemoveUserById(string customerId, string userId)
         {
             customerId.AssertNotEmpty(nameof(customerId));
             userId.AssertNotEmpty(nameof(userId));
-            bool success = true;
 
-            try
-            {
-                Partner.Customers.ById(customerId).Users.ById(userId).Delete();
-                WriteObject(success);
-            }
-            catch (PartnerException ex)
-            {
-                throw new PSPartnerException("Error deleting user id: " + userId, ex);
-            }
-            finally
-            {
-                customerId = null;
-                userId = null;
-            }
+            Partner.Customers.ById(customerId).Users.ById(userId).DeleteAsync().GetAwaiter().GetResult();
+            WriteObject(true);
         }
 
         /// <summary>
@@ -130,21 +112,14 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 
             List<CustomerUser> gUsers = GetUsers(customerId);
 
-            try
-            {
-                return (gUsers.Where(u => string.Equals(u.UserPrincipalName, userPrincipalName, StringComparison.CurrentCultureIgnoreCase)).First<CustomerUser>()).Id;
-            }
-            catch
-            {
-                throw new PSPartnerException("Error finding user id for " + userPrincipalName);
-            }
+            return gUsers.SingleOrDefault(u => string.Equals(u.UserPrincipalName, userPrincipalName, StringComparison.CurrentCultureIgnoreCase)).Id;
         }
 
         /// <summary>
         /// Gets a list of users from Partner Center.
         /// </summary>
         /// <param name="customerId">Identifier of the customer.</param>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// <paramref name="customerId"/> is empty or null.
         /// </exception>
         private List<CustomerUser> GetUsers(string customerId)
@@ -155,26 +130,18 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 
             customerId.AssertNotEmpty(nameof(customerId));
 
-            try
+            users = new List<CustomerUser>();
+
+            seekUsers = Partner.Customers[customerId].Users.GetAsync().GetAwaiter().GetResult();
+            usersEnumerator = Partner.Enumerators.CustomerUsers.Create(seekUsers);
+
+            while (usersEnumerator.HasValue)
             {
-                users = new List<CustomerUser>();
-
-                seekUsers = Partner.Customers[customerId].Users.Get();
-                usersEnumerator = Partner.Enumerators.CustomerUsers.Create(seekUsers);
-
-                while (usersEnumerator.HasValue)
-                {
-                    users.AddRange(usersEnumerator.Current.Items);
-                    usersEnumerator.Next();
-                }
-
-                return users;
+                users.AddRange(usersEnumerator.Current.Items);
+                usersEnumerator.NextAsync().GetAwaiter().GetResult();
             }
-            finally
-            {
-                seekUsers = null;
-                usersEnumerator = null;
-            }
+
+            return users;
         }
     }
 }

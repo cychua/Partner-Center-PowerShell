@@ -1,12 +1,9 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSOrganizationProfile.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Partners
 {
-    using Common;
+    using Extensions;
     using PartnerCenter.Models;
     using PartnerCenter.Models.Partners;
 

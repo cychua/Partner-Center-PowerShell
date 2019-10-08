@@ -1,12 +1,9 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSCustomerTrialConversion" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.CustomerTrialConversion
 {
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Offers;
     using PartnerCenter.Models.Subscriptions;
 
@@ -39,7 +36,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.CustomerTrialConversio
         public string TargetOfferId { get; set; }
 
         /// <summary>
-        /// Gets or sets the order id.
+        /// Gets or sets the order identifier.
         /// </summary>
         public string OrderId { get; set; }
 

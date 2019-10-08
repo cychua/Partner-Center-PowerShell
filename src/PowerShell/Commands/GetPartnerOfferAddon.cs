@@ -8,7 +8,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System.Linq;
     using System.Management.Automation;
-    using Authentication;
+    using Models.Authentication;
     using Models.Offers;
     using PartnerCenter.Models;
     using PartnerCenter.Models.Offers;
@@ -37,18 +37,11 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         public override void ExecuteCmdlet()
         {
             ResourceCollection<Offer> offers;
-            string countryCode = (string.IsNullOrEmpty(CountryCode)) ? PartnerProfile.Instance.Context.CountryCode : CountryCode;
+            string countryCode = (string.IsNullOrEmpty(CountryCode)) ? PartnerSession.Instance.Context.CountryCode : CountryCode;
 
-            try
-            {
-                offers = Partner.Offers.ByCountry(countryCode).ById(OfferId).AddOns.Get();
+            offers = Partner.Offers.ByCountry(countryCode).ById(OfferId).AddOns.GetAsync().GetAwaiter().GetResult();
 
-                WriteObject(offers.Items.Select(o => new PSOffer(o)), true);
-            }
-            finally
-            {
-                offers = null;
-            }
+            WriteObject(offers.Items.Select(o => new PSOffer(o)), true);
         }
     }
 }

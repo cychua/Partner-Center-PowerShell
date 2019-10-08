@@ -8,7 +8,7 @@ Locale: en-US
 
 # PartnerCenter Module
 ## Description
-This topic displays help topics for the Partner Center Cmdlets.
+These are the cmdlets in the Partner Center PowerShell module.
 
 ## PartnerCenter Cmdlets
 ### [Add-PartnerCustomerCartLineItem](Add-PartnerCustomerCartLineItem.md)
@@ -18,10 +18,16 @@ Adds a new line item to the specified cart.
 Adds a customer user to a specified role.
 
 ### [Connect-PartnerCenter](Connect-PartnerCenter.md)
-Connect to Partner Center with an authenticated account for use with cmdlet requests.
+Connect to Partner Center with an authenticated account for use with partner cmdlet requests.
+
+### [Disconnect-PartnerCenter](Disconnect-PartnerCenter.md)
+Disconnects the current session from Partner Center.
 
 ### [Get-PartnerAgreementDetail](Get-PartnerAgreementDetail.md)
 Gets the agreement metadata for the Microsoft Cloud Agreement.
+
+### [Get-PartnerAgreementDocument](Get-PartnerAgreementDocument.md)
+Gets the links to download or view the Microsoft Customer Agreement template.
 
 ### [Get-PartnerAuditRecord](Get-PartnerAuditRecord.md)
 Gets audit records from Partner Center.
@@ -32,6 +38,9 @@ Gets real-time prices for an Azure offer.
 ### [Get-PartnerBillingProfile](Get-PartnerBillingProfile.md)
 Gets the partner's billing profile.
 
+### [Get-PartnerContext](Get-PartnerContext.md)
+Gets the metadata used to authenticate Partner Center requests.
+
 ### [Get-PartnerCountryValidation](Get-PartnerCountryValidation.md)
 Gets the rules for validating an address for a specific country.
 
@@ -41,8 +50,14 @@ Gets a specific customer or a list of available customers.
 ### [Get-PartnerCustomerAgreement](Get-PartnerCustomerAgreement.md)
 Gets confirmation of customer acceptance provided previously.
 
+### [Get-PartnerCustomerBillingProfile](Get-PartnerCustomerBillingProfile.md)
+Gets the customer's billing profile.
+
 ### [Get-PartnerCustomerCart](Get-PartnerCustomerCart.md)
 Gets a specific cart for the specified partner.
+
+### [Get-PartnerCustomerCompanyProfile](Get-PartnerCustomerCompanyProfile.md)
+Gets the customer's company profile.
 
 ### [Get-PartnerCustomerConfigurationPolicy](Get-PartnerCustomerConfigurationPolicy.md)
 Gets a list of all of a customer's policies.
@@ -65,8 +80,14 @@ Gets the managed services for a customer.
 ### [Get-PartnerCustomerOrder](Get-PartnerCustomerOrder.md)
 Gets either a specific order or a list of order for the specified customer.
 
-### [Get-PartnerCustomerRelationship](Get-PartnerCustomerRelationship.md)
-Gets all the partner relationships associated to the customer based on the logged in partner.
+### [Get-PartnerCustomerOrderLineItemActivationLink](Get-PartnerCustomerOrderLineItemActivationLink.md)
+Gets the activation link for the specified order line item.
+
+### [Get-PartnerCustomerOrderProvisioningStatus](Get-PartnerCustomerOrderProvisioningStatus.md)
+Gets the provisioning status for a customer order.
+
+### [Get-PartnerCustomerQualification](Get-PartnerCustomerQualification.md)
+Get the qualification assigned to the customer.
 
 ### [Get-PartnerCustomerServiceCosts](Get-PartnerCustomerServiceCosts.md)
 Gets a customer's service cost line items for the specified billing period.
@@ -79,6 +100,9 @@ Gets a list of licenses available to users of the specified customer.
 
 ### [Get-PartnerCustomerSubscription](Get-PartnerCustomerSubscription.md)
 Gets a list or a single customer subscription.
+
+### [Get-PartnerCustomerSubscriptionAddOn](Get-PartnerCustomerSubscriptionAddOn.md)
+Gets the purchased add-ons for the specified subscription.
 
 ### [Get-PartnerCustomerSubscriptionProvisioningStatus](Get-PartnerCustomerSubscriptionProvisioningStatus.md)
 Gets the provisioning status for the specified subscription.
@@ -113,6 +137,9 @@ Gets a list of licenses assigned to a user within a customer account.
 ### [Get-PartnerCustomerUserRole](Get-PartnerCustomerUserRole.md)
 Gets a list of directory roles for a customer.
 
+### [Get-PartnerEnvironment](Get-PartnerEnvironment.md)
+Get endpoints and metadata for an instance of Partner Center.
+
 ### [Get-PartnerIndirectReseller](Get-PartnerIndirectReseller.md)
 Gets a list of indirect resellers.
 
@@ -128,6 +155,9 @@ Gets an invoice statement using the invoice identifier.
 ### [Get-PartnerInvoiceSummary](Get-PartnerInvoiceSummary.md)
 Gets a summary view of the invoice.
 
+### [Get-PartnerInvoiceTaxReceiptStatement](Get-PartnerInvoiceTaxReceiptStatement.md)
+Gets the tax receipt statement for the specified invoice.
+
 ### [Get-PartnerLegalProfile](Get-PartnerLegalProfile.md)
 Gets the partner legal business profile from Partner Center.
 
@@ -138,13 +168,16 @@ Gets aggregated data on licenses deployment
 Gets aggregated data on licenses deployment
 
 ### [Get-PartnerMpnProfile](Get-PartnerMpnProfile.md)
-{{Fill in the Synopsis}}
+Gets the partner MPN from Partner Center.
 
 ### [Get-PartnerOffer](Get-PartnerOffer.md)
 Gets a specific offer or a list of available offers from Partner Center.
 
 ### [Get-PartnerOfferAddon](Get-PartnerOfferAddon.md)
 Gets the add-ons for an offer by identifier.
+
+### [Get-PartnerOfferCategory](Get-PartnerOfferCategory.md)
+Gets a list of offer categories.
 
 ### [Get-PartnerOrganizationProfile](Get-PartnerOrganizationProfile.md)
 Gets the partner organization profile from Partner Center.
@@ -164,6 +197,12 @@ Gets the list of SKUs for a product.
 ### [Get-PartnerResellerRequestLink](Get-PartnerResellerRequestLink.md)
 Gets a relationship request URL to send to a customer.
 
+### [Get-PartnerRole](Get-PartnerRole.md)
+Gets the roles at the partner level.
+
+### [Get-PartnerRoleMember](Get-PartnerRoleMember.md)
+Gets the members of the specified partner role.
+
 ### [Get-PartnerServiceIncident](Get-PartnerServiceIncident.md)
 Gets a list of service incidents.
 
@@ -176,11 +215,20 @@ Gets a list of service request topics.
 ### [Get-PartnerSupportProfile](Get-PartnerSupportProfile.md)
 Gets the partner's support profile.
 
+### [Get-PartnerValidationCode](Get-PartnerValidationCode.md)
+Gets a collection of a partner's Government Community Cloud validation codes.
+
+### [New-PartnerAccessToken](New-PartnerAccessToken.md)
+Acquires an access token from Azure Active Directory.
+
 ### [New-PartnerCustomer](New-PartnerCustomer.md)
 Creates a new customer.
 
 ### [New-PartnerCustomerAgreement](New-PartnerCustomerAgreement.md)
 Confirms the customer acceptance of the Microsoft Cloud agreement.
+
+### [New-PartnerCustomerApplicationConsent](New-PartnerCustomerApplicationConsent.md)
+Creates a new application consent for the specified customer.
 
 ### [New-PartnerCustomerCart](New-PartnerCustomerCart.md)
 Creates an order for a customer.
@@ -193,6 +241,9 @@ Creates a new device batch for the specified customer.
 
 ### [New-PartnerCustomerOrder](New-PartnerCustomerOrder.md)
 Create a new order for the specified services on behalf of the customer.
+
+### [New-PartnerCustomerSubscriptionActivation](New-PartnerCustomerSubscriptionActivation.md)
+Activates a third-party subscription in the integration sandbox.
 
 ### [New-PartnerCustomerSubscriptionRegistration](New-PartnerCustomerSubscriptionRegistration.md)
 Registers the specified subscription.
@@ -218,6 +269,9 @@ Removes the reseller relationship between the specified customer and the partner
 ### [Remove-PartnerSandboxCustomer](Remove-PartnerSandboxCustomer.md)
 Removes the specified customer.
 
+### [Resolve-PartnerError](Resolve-PartnerError.md)
+Display detailed information about PowerShell errors, with extended details for Partner Center PowerShell errors.
+
 ### [Restore-PartnerCustomerUser](Restore-PartnerCustomerUser.md)
 Restores a previously removed customer user from the customer's tenant.
 
@@ -233,6 +287,9 @@ Updates an order for a customer in a cart.
 ### [Set-PartnerCustomerConfigurationPolicy](Set-PartnerCustomerConfigurationPolicy.md)
 Updates an existing configuration policy with the specified options.
 
+### [Set-PartnerCustomerQualification](Set-PartnerCustomerQualification.md)
+Updates the specified customer's qualification to be Education or GovernmentCommunityCloud.
+
 ### [Set-PartnerCustomerSubscription](Set-PartnerCustomerSubscription.md)
 Updates the specified customer subscription.
 
@@ -243,7 +300,7 @@ Update a subscription's support contact to one of the partner's value added rese
 Updates the specified customer user account.
 
 ### [Set-PartnerCustomerUserLicense](Set-PartnerCustomerUserLicense.md)
-Adds or removes licenses for a Microsoft online service to the list of assigned licenses for a user. 
+Adds or removes licenses for a Microsoft online service to the list of assigned licenses for a user.
 
 ### [Set-PartnerLegalProfile](Set-PartnerLegalProfile.md)
 Updates the partner's legal profile.
@@ -266,3 +323,5 @@ Tests whether or not the specified address is valid.
 ### [Test-PartnerDomainAvailability](Test-PartnerDomainAvailability.md)
 Tests if the specified domain name is available for creating a new tenant.
 
+### [Test-PartnerSecurityRequirement](Test-PartnerSecurityRequirement.md)
+Tests the account, used during authentication, if multi-factor authentication was enforced.

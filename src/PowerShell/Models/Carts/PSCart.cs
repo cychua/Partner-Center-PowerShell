@@ -1,14 +1,11 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSCart.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
 {
     using System;
     using System.Collections.Generic;
-    using Common;
+    using Extensions;
     using PartnerCenter.Models.Carts;
 
     /// <summary>
@@ -32,11 +29,6 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
         }
 
         /// <summary>
-        /// Gets or sets a unique cart identifier.
-        /// </summary>
-        public string CartId { get; set; }
-
-        /// <summary>
         /// Gets or sets the creation timestamp.
         /// </summary>
         public DateTime? CreationTimestamp { get; set; }
@@ -45,6 +37,11 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
         /// Gets or sets the expiration timestamp.
         /// </summary>
         public DateTime ExpirationTimestamp { get; set; }
+
+        /// <summary>
+        /// Gets or sets a unique cart identifier.
+        /// </summary>
+        public string CartId { get; set; }
 
         /// <summary>
         /// Gets or sets the last modified timestamp.
@@ -62,7 +59,12 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Carts
         public IEnumerable<CartLineItem> LineItems { get; set; }
 
         /// <summary>
-        /// Addtional operations to be performed when cloning an instance of <see cref="Cart" /> to an instance of <see cref="PSCart" />. 
+        /// Gets or sets the cart status.
+        /// </summary>
+        public string Status { get; set; }
+
+        /// <summary>
+        /// Additional operations to be performed when cloning an instance of <see cref="Cart" /> to an instance of <see cref="PSCart" />. 
         /// </summary>
         /// <param name="cart">The cart being cloned.</param>
         private void CloneAdditionalOperations(Cart cart)

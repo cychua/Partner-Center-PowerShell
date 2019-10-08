@@ -1,14 +1,11 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="TestPartnerAddress.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
 {
     using System.Management.Automation;
-    using Microsoft.Store.PartnerCenter.PowerShell.Validations;
     using PartnerCenter.Models;
+    using Validations;
 
     /// <summary>
     /// Verifies the specified is valid.
@@ -71,29 +68,22 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Commands
         public override void ExecuteCmdlet()
         {
             Address address;
-            IValidator<Address> validator; 
+            IValidator<Address> validator;
 
-            try
+            address = new Address
             {
-                address = new Address
-                {
-                    AddressLine1 = AddressLine1,
-                    AddressLine2 = AddressLine2,
-                    City = City,
-                    Country = Country,
-                    PostalCode = PostalCode,
-                    Region = Region,
-                    State = State
-                };
+                AddressLine1 = AddressLine1,
+                AddressLine2 = AddressLine2,
+                City = City,
+                Country = Country,
+                PostalCode = PostalCode,
+                Region = Region,
+                State = State
+            };
 
-                validator = new AddressValidator(Partner);
+            validator = new AddressValidator(Partner);
 
-                WriteObject(validator.IsValid(address));
-            }
-            finally
-            {
-                address = null;
-            }
+            WriteObject(validator.IsValid(address, d => WriteDebug(d)));
         }
     }
 }

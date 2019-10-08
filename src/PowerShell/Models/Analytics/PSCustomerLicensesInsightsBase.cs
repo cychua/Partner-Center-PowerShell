@@ -1,8 +1,5 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="PSCustomerLicensesInsightsBase.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Analytics
 {
@@ -17,7 +14,7 @@ namespace Microsoft.Store.PartnerCenter.PowerShell.Models.Analytics
         public string CustomerId { get; set; }
 
         /// <summary
-        /// >Gets or sets the customer name.
+        /// Gets or sets the customer name.
         /// </summary>
         public string CustomerName { get; set; }
 
